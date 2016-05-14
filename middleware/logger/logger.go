@@ -1,12 +1,11 @@
 package logger
 
 import (
-	"io"
+	"github.com/kataras/iris"
+	"github.com/kataras/iris/config"
+	"github.com/kataras/iris/logger"
 	"strconv"
 	"time"
-
-	"github.com/kataras/iris"
-	"github.com/kataras/iris/logger"
 )
 
 // Options are the options of the logger middlweare
@@ -77,8 +76,10 @@ func (l *loggerMiddleware) Serve(ctx *iris.Context) {
 
 }
 
-func newLoggerMiddleware(writer io.Writer, prefix string, flag int, options ...Options) *loggerMiddleware {
-	l := &loggerMiddleware{Logger: logger.Custom(writer, prefix, flag)}
+func newLoggerMiddleware(loggerCfg config.Logger, options ...Options) *loggerMiddleware {
+	loggerCfg = config.DefaultLogger().MergeSingle(loggerCfg)
+
+	l := &loggerMiddleware{Logger: logger.New(loggerCfg)}
 
 	if len(options) > 0 {
 		l.options = options[0]
@@ -93,7 +94,8 @@ func newLoggerMiddleware(writer io.Writer, prefix string, flag int, options ...O
 
 // DefaultHandler returns the logger middleware with the default settings
 func DefaultHandler(options ...Options) iris.Handler {
-	return newLoggerMiddleware(logger.Output, "", 0)
+	loggerCfg := config.DefaultLogger()
+	return newLoggerMiddleware(loggerCfg, options...)
 }
 
 // Default returns the logger middleware as HandlerFunc with the default settings
@@ -106,8 +108,8 @@ func Default(options ...Options) iris.HandlerFunc {
 // first parameter is the writer (io.Writer)
 // second parameter is the prefix of which the message will follow up
 // third parameter is the logger.Options
-func CustomHandler(writer io.Writer, prefix string, flag int, options ...Options) iris.Handler {
-	return newLoggerMiddleware(writer, prefix, flag, options...)
+func CustomHandler(loggerCfg config.Logger, options ...Options) iris.Handler {
+	return newLoggerMiddleware(loggerCfg, options...)
 }
 
 // Custom returns the logger middleware as HandlerFunc with customized settings
@@ -115,6 +117,6 @@ func CustomHandler(writer io.Writer, prefix string, flag int, options ...Options
 // first parameter is the writer (io.Writer)
 // second parameter is the prefix of which the message will follow up
 // third parameter is the logger.Options
-func Custom(writer io.Writer, prefix string, flag int, options ...Options) iris.HandlerFunc {
-	return CustomHandler(writer, prefix, flag, options...).Serve
+func Custom(loggerCfg config.Logger, options ...Options) iris.HandlerFunc {
+	return CustomHandler(loggerCfg, options...).Serve
 }

@@ -9,17 +9,12 @@
 
 a modern, **community-driven** **web** application **framework** for **Go**. Comes with the [highest performance](#benchmarks) which ever achieved.
 
-![Benchmark Wizzard Processing Time](http://kataras.github.io/iris/assets/benchmark_11_05_2016_different_processing_time.png)
-
-
 **Easy to learn** while providing robust set of features for building **modern & shiny web applications**.
 
 <a href="https://www.gitbook.com/read/book/kataras/iris"><img align="left" width="185" src="https://raw.githubusercontent.com/kataras/iris/gh-pages/assets/book/cover_1.png"></a>
 
 ![Hi Iris GIF](http://kataras.github.io/iris/assets/hi_iris_may.gif)
 
-
-# Features
 
 * **Switch between template engines**: Select the way you like to parse your html files, switchable via one-line-configuration, [read more](https://kataras.gitbooks.io/iris/content/render.html)
 * **Typescript**: Auto-compile & Watch your client side code via the [typescript plugin](https://kataras.gitbooks.io/iris/content/plugin-typescript.html)
@@ -40,9 +35,108 @@ a modern, **community-driven** **web** application **framework** for **Go**. Com
 * **Party**:  Group routes when sharing the same resources or middlewares. You can organise a party with domains too! [*](https://kataras.gitbooks.io/iris/content/party.html)
 * **Transport Layer Security**: Provide privacy and data integrity between your server and the client[*](https://kataras.gitbooks.io/iris/content/tls.html)
 * **Multi server instances**: Besides the fact that Iris has a default main server. You can declare as many as you need[*](https://kataras.gitbooks.io/iris/content/declaration.html)
-* **Zero allocations**: Iris generates zero garbage
+* **Zero configuration**:  No need to configure anything, unless you're forced to. Default configurations everywhere, which you can change with ease
+* **Zero allocations**: Iris generates zero garbage.
 
-## Getting started
+### Hi
+
+```go
+package main
+
+import "github.com/kataras/iris"
+
+func main() {
+	iris.Get("/hi", func(ctx *iris.Context) {
+		ctx.Write("Hi %s", "iris")
+	})
+	iris.Listen(":8080")
+    //err := iris.ListenWithErr(":8080")
+}
+
+```
+
+The same
+```go
+package main
+
+import "github.com/kataras/iris"
+
+func main() {
+    api := iris.New()
+	api.Get("/hi", hi)
+	api.Listen(":8080")
+}
+
+func hi(ctx *iris.Context){
+   ctx.Write("Hi %s", "iris")
+}
+
+```
+
+Rich Hi with **html/template**
+
+```html
+<!-- ./templates/hi.html -->
+<html><head> <title> Hi Iris [THE TITLE] </title> </head>
+  <body>
+    <h1> Hi {{.Name}}
+  </body>
+</html>
+
+
+```
+
+```go
+// ./main.go
+import "github.com/kataras/iris"
+
+func main() {
+	iris.Get("/hi", hi)
+	iris.Listen(":8080")
+}
+
+func hi(ctx *iris.Context){
+   ctx.Render("hi.html", struct { Name string }{ Name: "iris" })
+}
+
+```
+
+Rich Hi with **Django-syntax, flosch/pongo2**
+
+```html
+<!-- ./templates/hi.html -->
+<html><head> <title> Hi Iris [THE TITLE] </title> </head>
+  <body>
+    <h1> Hi {{ Name }}
+  </body>
+</html>
+
+
+```
+
+```go
+// ./main.go
+import (
+    "github.com/kataras/iris"
+    "github.com/kataras/iris/config"
+)
+
+func main() {
+    iris.Config().Render.Template.Engine = config.PongoEngine
+	iris.Get("/hi", hi)
+	iris.Listen(":8080")
+}
+
+func hi(ctx *iris.Context){
+   ctx.Render("hi.html", map[string]interface{}{"Name": "iris"})
+}
+
+```
+
+- More about configuration [here](https://kataras.gitbooks.io/iris/content/configuration.html)
+- More about render and template engines [here](https://kataras.gitbooks.io/iris/content/render.html)
+
+### Getting started
 
 1. Install `$ go get -u github.com/kataras/iris`
  >If you are connected to the Internet through China [click here](https://kataras.gitbooks.io/iris/content/install.html)
@@ -71,7 +165,7 @@ a modern, **community-driven** **web** application **framework** for **Go**. Com
 
 
 
-## Benchmarks
+### Benchmarks
 
 
 Benchmarks results taken [from external source](https://github.com/smallnest/go-web-framework-benchmark), created by [@smallnest](https://github.com/smallnest).
@@ -93,10 +187,10 @@ May 12 2016
 *    ...
 *    ...
 
-## Versioning
+### Versioning
 Compatible only with go1.6+
 
-Current: **v3.0.0-alpha.1**
+Current: **v3.0.0-alpha.2**
 
 
 Read more about Semantic Versioning 2.0.0
@@ -106,15 +200,15 @@ Read more about Semantic Versioning 2.0.0
  - https://wiki.debian.org/UpstreamGuide#Releases_and_Versions
 
 
-## Third party packages
+### Third party packages
 
 - [fasthttp](https://github.com/valyala/fasthttp)
 - [formam](https://github.com/monoculum/formam)
 - [i18n](https://github.com/Unknwon/i18n)
 - [pongo2 as one of the build'n template engines](https://github.com/flosch/pongo2)
-- [mergo as struct merge for config](https://github.com/imdario/mergo)
+- [mergo as struct merge for configs](https://github.com/imdario/mergo)
 
-## Contributors
+### Contributors
 
 Thanks goes to the people who have contributed code to this package, see the
 
@@ -122,7 +216,7 @@ Thanks goes to the people who have contributed code to this package, see the
 - [Iris Contrib GitHub Contributors page](https://github.com/orgs/iris-contrib/people).
 
 
-## Todo
+### Todo
 > for the next release 'v3'
 
 - [ ] Implement a middleware or plugin for easy & secure user authentication, stored in (no)database redis/mysql and make use of [sessions](https://github.com/kataras/iris/tree/master/sessions).
@@ -131,7 +225,7 @@ Thanks goes to the people who have contributed code to this package, see the
 - [ ] Extend, test and publish to the public the Iris' cmd.
 
 
-## Donations
+### Donations
 
 I am a student at the [University of Central Macedonia](http://teiser.gr/), therefore I have no income value.
 
@@ -142,8 +236,7 @@ From a younger age I have dedicated all my time to various open source projects,
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=makis%40ideopod%2ecom&lc=GR&item_name=Iris%20web%20framework&item_number=iriswebframeworkdonationid2016&amount=2%2e00&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
 
 
-## License
+### License
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 License can be found [here](https://github.com/kataras/iris/blob/master/LICENSE).
-

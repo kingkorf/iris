@@ -1,58 +1,19 @@
 package iris
 
 import (
-	"time"
-
+	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/logger"
-	"github.com/kataras/iris/rest"
+	"github.com/kataras/iris/render/rest"
+	"github.com/kataras/iris/render/template"
 	"github.com/kataras/iris/server"
-	"github.com/kataras/iris/template"
 )
 
 // DefaultIris in order to use iris.Get(...,...) we need a default Iris on the package level
 var DefaultIris *Iris
 
-var (
-	// DefaultCharset represents the default charset for content headers
-	// all render methods will have this charset
-	DefaultCharset = "UTF-8"
-	// DefaultCookieName the secret cookie's name for sessions
-	DefaultCookieName = "irissessionid"
-	// DefaultCookieDuration the cookie's life for sessions
-	DefaultCookieDuration = time.Duration(60) * time.Minute
-)
-
 // init the only one.
 func init() {
 	DefaultIris = New()
-}
-
-// DefaultConfig returns the default iris.Config for the Iris
-func DefaultConfig() *IrisConfig {
-	return &IrisConfig{
-		PathCorrection:     true,
-		MaxRequestBodySize: -1,
-		Log:                true,
-		Profile:            false,
-		ProfilePath:        DefaultProfilePath,
-		// set the default template config both not nil and default Engine to Standar
-		Templates: DefaultTemplateConfig(),
-		Rest: &RestConfig{
-			Charset:                   DefaultCharset,
-			IndentJSON:                false,
-			IndentXML:                 false,
-			PrefixJSON:                []byte(""),
-			PrefixXML:                 []byte(""),
-			UnEscapeHTML:              false,
-			StreamingJSON:             false,
-			DisableHTTPErrorRendering: false,
-		},
-		Session: &SessionConfig{
-			Provider: "memory", // the default provider is "memory", if you set it to ""  means that sessions are disabled.
-			Secret:   DefaultCookieName,
-			Life:     DefaultCookieDuration,
-		},
-	}
 }
 
 // Listen starts the standalone http server
@@ -270,7 +231,7 @@ func Plugins() *PluginContainer {
 }
 
 // Config returns the configs
-func Config() *IrisConfig {
+func Config() *config.Iris {
 	return DefaultIris.Config()
 }
 
@@ -287,13 +248,4 @@ func Rest() *rest.Render {
 // Templates returns the template render
 func Templates() *template.Template {
 	return DefaultIris.Templates()
-}
-
-// SetMaxRequestBodySize Maximum request body size.
-//
-// The server rejects requests with bodies exceeding this limit.
-//
-// By default request body size is unlimited.
-func SetMaxRequestBodySize(size int) {
-	DefaultIris.SetMaxRequestBodySize(size)
 }

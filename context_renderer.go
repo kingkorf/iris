@@ -20,7 +20,7 @@ func (ctx *Context) Write(format string, a ...interface{}) {
 
 // WriteHTML writes html string with a http status
 func (ctx *Context) WriteHTML(httpStatus int, htmlContents string) {
-	ctx.SetContentType([]string{ContentHTML + " ;charset=" + DefaultCharset})
+	ctx.SetContentType(ContentHTML + ctx.station.rest.CompiledCharset)
 	ctx.RequestCtx.SetStatusCode(httpStatus)
 	ctx.RequestCtx.WriteString(htmlContents)
 }
@@ -69,7 +69,7 @@ func (ctx *Context) XML(status int, v interface{}) error {
 // the second parameter is the page context (interfac{})
 // returns an error if any errors occurs while executing this template
 func (ctx *Context) ExecuteTemplate(tmpl *template.Template, pageContext interface{}) error {
-	ctx.RequestCtx.SetContentType(ContentHTML + " ;charset=" + DefaultCharset)
+	ctx.RequestCtx.SetContentType(ContentHTML + ctx.station.rest.CompiledCharset)
 	return ErrTemplateExecute.With(tmpl.Execute(ctx.RequestCtx.Response.BodyWriter(), pageContext))
 }
 

@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/kataras/iris"
+	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/logger"
 	"github.com/kataras/iris/npm"
 	"github.com/kataras/iris/utils"
@@ -30,46 +31,39 @@ type (
 	// keyfile,certfile for TLS listening
 	// and a host which is listening for
 	Plugin struct {
-		logger             *logger.Logger
-		enabled            bool   // default true
-		host               string // default 127.0.0.1
-		port               int    // default 4444
-		username, password string // based on Basic Auth, // default -nothing, for security reasons you have to set it otherwise editor is not opening.
-		keyfile            string
-		certfile           string
-		directory          string // working directory
-
+		config   *config.Editor
+		logger   *logger.Logger
+		enabled  bool // default true
+		keyfile  string
+		certfile string
 		// after alm started
 		process *os.Process
 	}
 )
 
-// New creates and returns a new (Editor)Plugin object
-// accepts username and password, these are not optionally, you have to use that otherwise the editor will never actual run
-// for security reasons and only
-func New(username string, password string) *Plugin {
-	e := &Plugin{enabled: true, port: 4444}
-	e.username = username
-	e.password = password
+// New creates and returns an Editor Plugin instance
+func New(cfg ...config.Editor) *Plugin {
+	c := config.DefaultEditor().Merge(cfg)
+	e := &Plugin{enabled: true, config: &c}
 	return e
 }
 
 // User set a user, accepts two parameters: username (string), string (string)
 func (e *Plugin) User(username string, password string) *Plugin {
-	e.username = username
-	e.password = password
+	e.config.Username = username
+	e.config.Password = password
 	return e
 }
 
 // Dir sets the directory which the client side source code alive
 func (e *Plugin) Dir(workingDir string) *Plugin {
-	e.directory = workingDir
+	e.config.WorkingDir = workingDir
 	return e
 }
 
 // Port sets the port (int) for the editor plugin's standalone server
 func (e *Plugin) Port(port int) *Plugin {
-	e.port = port
+	e.config.Port = port
 	return e
 }
 
@@ -78,13 +72,6 @@ func (e *Plugin) Port(port int) *Plugin {
 // SetEnable if true enables the editor plugin, otherwise disables it
 func (e *Plugin) SetEnable(enable bool) {
 	e.enabled = enable
-}
-
-// implement the IPlugin, IPluginPreListen & IPluginPreClose
-
-// Activate ...
-func (e *Plugin) Activate(container iris.IPluginContainer) error {
-	return nil
 }
 
 // GetName returns the name of the Plugin
@@ -102,15 +89,20 @@ func (e *Plugin) PreListen(s *iris.Iris) {
 	e.logger = s.Logger()
 	e.keyfile = s.Server().Config.KeyFile
 	e.certfile = s.Server().Config.CertFile
-	e.host = s.Server().Config.ListeningAddr
 
-	if idx := strings.Index(e.host, ":"); idx >= 0 {
-		e.host = e.host[0:idx]
-	}
-	if e.host == "" {
-		e.host = "127.0.0.1"
-	}
+	if e.config.Host == "" {
+		h := s.Server().Config.ListeningAddr
 
+		if idx := strings.Index(h, ":"); idx >= 0 {
+			h = h[0:idx]
+		}
+		if h == "" {
+			h = "127.0.0.1"
+		}
+
+		e.config.Host = h
+
+	}
 	e.start()
 }
 
@@ -126,8 +118,7 @@ func (e *Plugin) PreClose(s *iris.Iris) {
 
 // start starts the job
 func (e *Plugin) start() {
-
-	if e.username == "" || e.password == "" {
+	if e.config.Username == "" || e.config.Password == "" {
 		e.logger.Println("Error before running alm-tools. You have to set username & password for security reasons, otherwise this plugin won't run.")
 		return
 	}
@@ -143,7 +134,7 @@ func (e *Plugin) start() {
 	}
 
 	cmd := utils.CommandBuilder("node", npm.Abs("alm/src/server.js"))
-	cmd.AppendArguments("-a", e.username+":"+e.password, "-h", e.host, "-t", strconv.Itoa(e.port), "-d", e.directory[0:len(e.directory)-1])
+	cmd.AppendArguments("-a", e.config.Username+":"+e.config.Password, "-h", e.config.Host, "-t", strconv.Itoa(e.config.Port), "-d", e.config.WorkingDir[0:len(e.config.WorkingDir)-1])
 	// for auto-start in the browser: cmd.AppendArguments("-o")
 	if e.keyfile != "" && e.certfile != "" {
 		cmd.AppendArguments("--httpskey", e.keyfile, "--httpscert", e.certfile)
@@ -161,6 +152,6 @@ func (e *Plugin) start() {
 	}
 
 	//we lose the internal error handling but ok...
-	e.logger.Printf("Editor is running at %s:%d | %s", e.host, e.port, e.directory)
+	e.logger.Printf("Editor is running at %s:%d | %s", e.config.Host, e.config.Port, e.config.WorkingDir)
 
 }

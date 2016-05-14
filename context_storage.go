@@ -136,7 +136,7 @@ func (ctx *Context) SetFlashBytes(key string, value []byte) {
 
 // Sessionreturns the current session store, returns nil if provider is ""
 func (ctx *Context) Session() store.IStore {
-	if ctx.station.sessionManager == nil || ctx.station.config.Session.Provider == "" { //the second check can be changed on runtime, users are able to  turn off the sessions by setting provider to  ""
+	if ctx.station.sessionManager == nil || ctx.station.config.Sessions.Provider == "" { //the second check can be changed on runtime, users are able to  turn off the sessions by setting provider to  ""
 		return nil
 	}
 

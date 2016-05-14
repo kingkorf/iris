@@ -11,21 +11,16 @@ type (
 		GetMethod() string
 		GetDomain() string
 		GetPath() string
-		GetPathPrefix() string
-		ProcessPath()
 		GetMiddleware() Middleware
-		SetMiddleware(m Middleware)
 		HasCors() bool
 	}
 
-	// Route contains basic and temporary info about the route, it is nil after iris.Listen called
-	// contains all middleware and prepare them for execution
-	// Used to create a node at the Router's Build state
+	// Route contains basic and temporary info about the route in order to be stored to the tree
+	// It's struct because we pass it ( as IRoute) to the plugins
 	Route struct {
 		method     string
 		domain     string
 		fullpath   string
-		PathPrefix string
 		middleware Middleware
 	}
 )
@@ -35,6 +30,7 @@ var _ IRoute = &Route{}
 // NewRoute creates, from a path string, and a slice of HandlerFunc
 func NewRoute(method string, registedPath string, middleware Middleware) *Route {
 	domain := ""
+	//dirdy but I'm not touching this again:P
 	if registedPath[0] != SlashByte && strings.Contains(registedPath, ".") && (strings.IndexByte(registedPath, SlashByte) == -1 || strings.IndexByte(registedPath, SlashByte) > strings.IndexByte(registedPath, '.')) {
 		//means that is a path with domain
 		//we have to extract the domain
@@ -62,7 +58,7 @@ func NewRoute(method string, registedPath string, middleware Middleware) *Route 
 
 	}
 	r := &Route{method: method, domain: domain, fullpath: registedPath, middleware: middleware}
-	r.ProcessPath()
+
 	return r
 }
 
@@ -81,52 +77,9 @@ func (r Route) GetPath() string {
 	return r.fullpath
 }
 
-// GetPathPrefix returns the path prefix, this is the static part before any parameter or *any
-func (r Route) GetPathPrefix() string {
-	return r.PathPrefix
-}
-
 // GetMiddleware returns the chain of the []HandlerFunc registed to this Route
 func (r Route) GetMiddleware() Middleware {
 	return r.middleware
-}
-
-// SetMiddleware sets the middleware(s)
-func (r Route) SetMiddleware(m Middleware) {
-	r.middleware = m
-}
-
-// ProcessPath modifies the path in order to set the path prefix of this Route
-func (r *Route) ProcessPath() {
-	endPrefixIndex := strings.IndexByte(r.fullpath, ParameterStartByte)
-
-	if endPrefixIndex != -1 {
-		r.PathPrefix = r.fullpath[:endPrefixIndex]
-
-	} else {
-		//check for *
-		endPrefixIndex = strings.IndexByte(r.fullpath, MatchEverythingByte)
-		if endPrefixIndex != -1 {
-			r.PathPrefix = r.fullpath[:endPrefixIndex]
-		} else {
-			//check for the last slash
-			endPrefixIndex = strings.LastIndexByte(r.fullpath, SlashByte)
-			if endPrefixIndex != -1 {
-				r.PathPrefix = r.fullpath[:endPrefixIndex]
-			} else {
-				//we don't have ending slash ? then it is the whole r.fullpath
-				r.PathPrefix = r.fullpath
-			}
-		}
-	}
-
-	//1.check if pathprefix is empty ( it's empty when we have just '/' as fullpath) so make it '/'
-	//2. check if it's not ending with '/', ( it is not ending with '/' when the next part is parameter or *)
-
-	lastIndexOfSlash := strings.LastIndexByte(r.PathPrefix, SlashByte)
-	if lastIndexOfSlash != len(r.PathPrefix)-1 || r.PathPrefix == "" {
-		r.PathPrefix += "/"
-	}
 }
 
 // HasCors check if middleware passsed to a route has cors

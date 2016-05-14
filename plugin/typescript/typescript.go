@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/kataras/iris"
+	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/logger"
 	"github.com/kataras/iris/npm"
 	"github.com/kataras/iris/plugin/editor"
@@ -54,7 +55,10 @@ type (
 // Editor is just a shortcut for github.com/kataras/iris/plugin/editor.New()
 // returns a new (Editor)Plugin, it's exists here because the typescript plugin has direct interest with the EditorPlugin
 func Editor(username, password string) *editor.Plugin {
-	return editor.New(username, password)
+	editorCfg := config.DefaultEditor()
+	editorCfg.Username = username
+	editorCfg.Password = password
+	return editor.New(editorCfg)
 }
 
 // DefaultOptions returns the default Options of the Plugin

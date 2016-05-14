@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/context"
-	"github.com/kataras/iris/template/engine"
 	"github.com/kataras/iris/utils"
 )
 
@@ -21,22 +21,30 @@ var (
 )
 
 type (
-	StandarConfig struct {
-		RequirePartials bool
-		// Delims
-		Left  string
-		Right string
-		// Funcs for Standar
-		Funcs []template.FuncMap
-	}
+	/*
+	 this was the old good way before 3.0.0-alpha.1, but after I released that this brings troubles to simplify the Configuration for the iris' station
+	 so I moved all configs inside the config package and all are happy,
+	 the only downside here is that, we will have the same config struct for all template engines
+	 and each template engine will pick its config to work on,
+	 standar will pick the config.Standar, pongo the config.Pongo, and the common options are in config.
+	*/
+	/*
+		StandarConfig struct {
+			RequirePartials bool
+			// Delims
+			Left  string
+			Right string
+			// Funcs for Standar
+			Funcs []template.FuncMap
+		}
 
-	Config struct {
-		engine.Config
-		StandarConfig
-	}
-
+		Config struct {
+			engine.Config
+			StandarConfig
+		}
+	*/
 	Engine struct {
-		Config    *Config
+		Config    *config.Template
 		Templates *template.Template
 	}
 )
@@ -55,30 +63,25 @@ var emptyFuncs = template.FuncMap{
 	},
 }
 
+/*
 func WrapConfig(common engine.Config, standar StandarConfig) *Config {
 	return &Config{Config: common, StandarConfig: standar}
 }
+*/
 
-// DefaultStandarConfig returns the default standar specific options, no the whole Config
-func DefaultStandarConfig() StandarConfig {
-	return StandarConfig{Left: "{{", Right: "}}", Funcs: make([]template.FuncMap, 0)}
-}
-
-// this can work as standalone also
-func New(config *Config) *Engine {
+// New creates and returns a Standar template engine
+func New(cfg ...config.Template) *Engine {
 	if buffer == nil {
 		buffer = utils.NewBufferPool(64)
 	}
 
-	if config == nil {
-		config = WrapConfig(engine.Common(), DefaultStandarConfig())
-	}
+	c := config.DefaultTemplate().Merge(cfg)
 
-	return &Engine{Config: config}
+	return &Engine{Config: &c}
 }
 
-func (s *Engine) GetConfig() *engine.Config {
-	return &s.Config.Config
+func (s *Engine) GetConfig() *config.Template {
+	return s.Config
 }
 
 func (s *Engine) BuildTemplates() error {
@@ -99,7 +102,7 @@ func (s *Engine) buildFromDir() error {
 	var templateErr error
 	dir := s.Config.Directory
 	s.Templates = template.New(dir)
-	s.Templates.Delims(s.Config.Left, s.Config.Right)
+	s.Templates.Delims(s.Config.Standar.Left, s.Config.Standar.Right)
 
 	// Walk the supplied directory and compile any files that match our extension list.
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
@@ -131,9 +134,8 @@ func (s *Engine) buildFromDir() error {
 				name := filepath.ToSlash(rel)
 				tmpl := s.Templates.New(name)
 
-				// for debug println("load new template with name: " + name + " from path: " + path)
 				// Add our funcmaps.
-				for _, funcs := range s.Config.Funcs {
+				for _, funcs := range s.Config.Standar.Funcs {
 					tmpl.Funcs(funcs)
 				}
 
@@ -151,7 +153,7 @@ func (s *Engine) buildFromAsset() error {
 	var templateErr error
 	dir := s.Config.Directory
 	s.Templates = template.New(dir)
-	s.Templates.Delims(s.Config.Left, s.Config.Right)
+	s.Templates.Delims(s.Config.Standar.Left, s.Config.Standar.Right)
 
 	for _, path := range s.Config.AssetNames() {
 		if !strings.HasPrefix(path, dir) {
@@ -180,7 +182,7 @@ func (s *Engine) buildFromAsset() error {
 				tmpl := s.Templates.New(name)
 
 				// Add our funcmaps.
-				for _, funcs := range s.Config.Funcs {
+				for _, funcs := range s.Config.Standar.Funcs {
 					tmpl.Funcs(funcs)
 				}
 
@@ -210,7 +212,7 @@ func (s *Engine) layoutFuncsFor(name string, binding interface{}) {
 		},
 		"partial": func(partialName string) (template.HTML, error) {
 			fullPartialName := fmt.Sprintf("%s-%s", partialName, name)
-			if s.Config.RequirePartials || s.Templates.Lookup(fullPartialName) != nil {
+			if s.Config.Standar.RequirePartials || s.Templates.Lookup(fullPartialName) != nil {
 				buf, err := s.executeTemplateBuf(fullPartialName, binding)
 				// Return safe HTML here since we are rendering our own template.
 				return template.HTML(buf.String()), err

@@ -82,10 +82,10 @@ type (
 
 	// IContextResponse is part of the IContext
 	IContextResponse interface {
-		// SetContentType sets the "Content-Type" header, receives the values
-		SetContentType([]string)
-		// SetHeader sets the response headers first parameter is the key, second is the values
-		SetHeader(string, []string)
+		// SetContentType sets the "Content-Type" header, receives the value
+		SetContentType(string)
+		// SetHeader sets the response headers first parameter is the key, second is the value
+		SetHeader(string, string)
 		Redirect(string, ...int)
 		// Errors
 		NotFound()

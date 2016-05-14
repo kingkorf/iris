@@ -1,57 +1,54 @@
 package template
 
 import (
+	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/context"
-	"github.com/kataras/iris/template/engine"
-	"github.com/kataras/iris/template/engine/pongo"
-	"github.com/kataras/iris/template/engine/standar"
+	"github.com/kataras/iris/render/template/engine/pongo"
+	"github.com/kataras/iris/render/template/engine/standar"
 )
 
 type (
+	Engine interface {
+		BuildTemplates() error
+		Execute(ctx context.IContext, name string, binding interface{}, layout string) error
+		ExecuteGzip(ctx context.IContext, name string, binding interface{}, layout string) error
+	}
+
 	Template struct {
-		Engine engine.Engine
+		Engine Engine
 
 		IsDevelopment bool
 		Gzip          bool
 		ContentType   string
 		Layout        string
 	}
-
-	// TemplateOptions the options to create a Template instance
-	//
-	// Options and no Config because this struct is not live inside a Template instance
-	TemplateOptions struct {
-		Engine        engine.EngineType
-		engine.Config // contains common configs for both standar & pongo
-		// [ENGINE-1]
-		Standar standar.StandarConfig // contains specific configs for standar html/template
-		Pongo   pongo.PongoConfig     // contains specific configs for pongo2
-	}
 )
 
-func New(opt TemplateOptions) *Template {
+// New creates and returns a Template instance which keeps the Template Engine and helps with render
+func New(cfg ...config.Template) *Template {
+	c := config.DefaultTemplate().Merge(cfg)
 
-	var e engine.Engine
+	var e Engine
 	// [ENGINE-2]
-	switch opt.Engine {
-	case engine.Pongo:
-		e = pongo.New(pongo.WrapConfig(opt.Config, opt.Pongo))
+	switch c.Engine {
+	case config.PongoEngine:
+		e = pongo.New(c)
 	default:
-		e = standar.New(standar.WrapConfig(opt.Config, opt.Standar)) // default to standar
+		e = standar.New(c) // default to standar
 	}
 
 	if err := e.BuildTemplates(); err != nil { // first build the templates, if error panic because this is called before server's run
 		panic(err)
 	}
 
-	compiledContentType := opt.ContentType + "; charset=" + opt.Charset
+	compiledContentType := c.ContentType + "; charset=" + c.Charset
 
 	return &Template{
 		Engine:        e,
-		IsDevelopment: opt.IsDevelopment,
-		Gzip:          opt.Gzip,
+		IsDevelopment: c.IsDevelopment,
+		Gzip:          c.Gzip,
 		ContentType:   compiledContentType,
-		Layout:        opt.Layout,
+		Layout:        c.Layout,
 	}
 
 }

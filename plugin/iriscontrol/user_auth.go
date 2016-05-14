@@ -3,8 +3,6 @@ package iriscontrol
 import (
 	"strings"
 
-	"time"
-
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/sessions"
 	// _ empty because it auto-registers
@@ -14,7 +12,8 @@ import (
 var panelSessions *sessions.Manager
 
 func init() {
-	panelSessions = sessions.New("memory", "irisControlPanel$", time.Duration(time.Minute)*60)
+	//using the default
+	panelSessions = sessions.New()
 }
 
 type user struct {

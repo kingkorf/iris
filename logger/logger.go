@@ -1,15 +1,14 @@
 package logger
 
 import (
-	"io"
 	"log"
 	"os"
+
+	"github.com/kataras/iris/config"
 )
 
 var (
-	// Output os.Stdout , it's the default io.Writer to the Iris' logger
-	Output = os.Stdout
-	// Prefix is the prefix for the logger, it's default is [IRIS]
+	// Prefix is the prefix for the logger, default is [IRIS]
 	Prefix = "[IRIS] "
 )
 
@@ -19,20 +18,13 @@ type Logger struct {
 	enabled bool
 }
 
-// Custom creates a new Logger.   The out variable sets the
+// New creates a new Logger.   The out variable sets the
 // destination to which log data will be written.
 // The prefix appears at the beginning of each generated log line.
 // The flag argument defines the logging properties.
-func Custom(out io.Writer, prefix string, flag int) *Logger {
-	if out == nil {
-		out = Output
-	}
-	return &Logger{Logger: log.New(out, Prefix+prefix, flag), enabled: true}
-}
-
-// New creates and returns a logger with the default options
-func New() *Logger {
-	return Custom(Output, "", 0)
+func New(cfg ...config.Logger) *Logger {
+	c := config.DefaultLogger().Merge(cfg)
+	return &Logger{Logger: log.New(c.Out, Prefix+c.Prefix, c.Flag), enabled: true}
 }
 
 // SetEnable true enables, false disables the Logger

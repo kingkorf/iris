@@ -1,18 +1,13 @@
 package iris
 
 // SetContentType sets the response writer's header key 'Content-Type' to a given value(s)
-func (ctx *Context) SetContentType(s []string) {
-	for _, hv := range s {
-		ctx.RequestCtx.Response.Header.Set(ContentType, hv)
-	}
-
+func (ctx *Context) SetContentType(s string) {
+	ctx.RequestCtx.Response.Header.Set(ContentType, s)
 }
 
 // SetHeader write to the response writer's header to a given key the given value(s)
-func (ctx *Context) SetHeader(k string, s []string) {
-	for _, hv := range s {
-		ctx.RequestCtx.Response.Header.Set(k, hv)
-	}
+func (ctx *Context) SetHeader(k string, v string) {
+	ctx.RequestCtx.Response.Header.Set(k, v)
 }
 
 // Redirect redirect sends a redirect response the client

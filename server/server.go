@@ -5,14 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/kataras/iris/config"
 	"github.com/valyala/fasthttp"
-)
-
-const (
-	// DefaultServerAddr the default server addr
-	DefaultServerAddr = ":8080"
-	// DefaultServerName the response header of the 'Server' value when writes to the client
-	DefaultServerName = "iris"
 )
 
 // Server is the IServer's implementation, holds the fasthttp's Server, a net.Listener, the ServerOptions, and the handler
@@ -20,31 +14,21 @@ const (
 type Server struct {
 	*fasthttp.Server
 	listener net.Listener
-	Config   Config
+	Config   config.Server
 	started  bool
 	tls      bool
 	handler  fasthttp.RequestHandler
 }
 
 // New returns a pointer to a Server object, and set it's options if any,  nothing more
-func New(opt ...Config) *Server {
-	s := &Server{Server: &fasthttp.Server{Name: DefaultServerName}}
-	if opt != nil && len(opt) > 0 {
-		s.Config = opt[0]
-	}
+func New(cfg ...config.Server) *Server {
+	c := config.DefaultServer().Merge(cfg)
+	s := &Server{Server: &fasthttp.Server{Name: config.ServerName}, Config: c}
+
 	s.Config.ListeningAddr = parseAddr(s.Config.ListeningAddr)
 
 	return s
 }
-
-// DefaultConfig returns the default options for the server
-func DefaultConfig() Config {
-	return Config{DefaultServerAddr, "", "", 0}
-}
-
-// DefaultServerSecureOptions does nothing now
-///TODO: make it to generate self-signed certificate: CertFile,KeyFile options for ListenTLS
-func DefaultServerSecureOptions() Config { return DefaultConfig() }
 
 // SetHandler sets the handler in order to listen on new requests, this is done at the Station/Iris level
 func (s *Server) SetHandler(h fasthttp.RequestHandler) {
@@ -201,7 +185,7 @@ func parseAddr(fullHostOrPort ...string) string {
 	if len(fullHostOrPort) > 1 {
 		fullHostOrPort = fullHostOrPort[0:1]
 	}
-	addr := DefaultServerAddr // default address
+	addr := config.DefaultServerAddr // default address
 	// if nothing passed, then use environment's port (if any) or just :8080
 	if len(fullHostOrPort) == 0 {
 		if envPort := os.Getenv("PORT"); len(envPort) > 0 {

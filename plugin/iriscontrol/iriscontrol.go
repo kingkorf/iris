@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/kataras/iris"
+	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/plugin/routesinfo"
 	"github.com/kataras/iris/server"
 )
@@ -11,17 +12,8 @@ import (
 // Name the name(string) of this plugin which is Iris Control
 const Name = "Iris Control"
 
-// IrisControlOptions the options which iris control needs
-// contains the port (int) and authenticated users with their passwords (map[string]string)
-type IrisControlOptions struct {
-	// Port the port
-	Port int
-	// Users the authenticated users, [username]password
-	Users map[string]string
-}
-
 type irisControlPlugin struct {
-	options IrisControlOptions
+	options config.IrisControl
 	// the pluginContainer is the container which keeps this plugin from the main user's iris instance
 	pluginContainer iris.IPluginContainer
 	// the station object of the main  user's iris instance
@@ -41,25 +33,25 @@ type irisControlPlugin struct {
 }
 
 // New returns the plugin which is ready-to-use inside iris.Plugin method
-// parameter is IrisControlOptions
-func New(options IrisControlOptions) iris.IPlugin {
-	i := &irisControlPlugin{}
-	i.options = options
-	i.routes = routesinfo.RoutesInfo()
-	if auth := newUserAuth(options.Users); auth != nil {
-		i.auth = auth
-	} else {
+// receives config.IrisControl
+func New(cfg ...config.IrisControl) iris.IPlugin {
+	c := config.DefaultIrisControl()
+	if len(cfg) > 0 {
+		c = cfg[0]
+	}
+	auth := newUserAuth(c.Users)
+	if auth == nil {
 		panic(Name + " Error: you should pass authenticated users map to the options, refer to the docs!")
 	}
 
-	return i
+	return &irisControlPlugin{options: c, auth: auth, routes: routesinfo.RoutesInfo()}
 }
 
 // Web set the options for the plugin and return the plugin which is ready-to-use inside iris.Plugin method
 // first parameter is port
 // second parameter is map of users (username:password)
 func Web(port int, users map[string]string) iris.IPlugin {
-	return New(IrisControlOptions{port, users})
+	return New(config.IrisControl{port, users})
 }
 
 // implement the base IPlugin
@@ -109,7 +101,7 @@ func (i *irisControlPlugin) PreClose(s *iris.Iris) {
 func (i *irisControlPlugin) Destroy() {
 	i.pluginContainer.Remove(Name)
 
-	i.options = IrisControlOptions{}
+	i.options = config.IrisControl{}
 	i.routes = nil
 	i.station = nil
 	i.server.Close()

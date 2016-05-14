@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/flosch/pongo2"
+	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/context"
-	"github.com/kataras/iris/template/engine"
 	"github.com/kataras/iris/utils"
 )
 
@@ -21,48 +21,30 @@ var (
 )
 
 type (
-	PongoConfig struct {
-		// Filters for pongo2, map[name of the filter] the filter function . The filters are auto register
-		Filters map[string]pongo2.FilterFunction
-	}
-
-	Config struct {
-		engine.Config
-		PongoConfig
-	}
-
 	Engine struct {
-		Config    *Config
+		Config    *config.Template
 		Templates *pongo2.TemplateSet
 	}
 )
 
-func WrapConfig(common engine.Config, pongo PongoConfig) *Config {
-	return &Config{Config: common, PongoConfig: pongo}
-}
-
-// DefaultPongoConfig returns the default pongo specific options, no the whole Config
-func DefaultPongoConfig() PongoConfig {
-	return PongoConfig{Filters: make(map[string]pongo2.FilterFunction, 0)}
-}
-
-func New(config *Config) *Engine {
+// New creates and returns a Pongo template engine
+func New(cfg ...config.Template) *Engine {
 	if buffer == nil {
 		buffer = utils.NewBufferPool(64)
 	}
-	if config == nil {
-		config = WrapConfig(engine.Common(), DefaultPongoConfig())
-	}
-	return &Engine{Config: config}
+
+	c := config.DefaultTemplate().Merge(cfg)
+
+	return &Engine{Config: &c}
 }
 
-func (p *Engine) GetConfig() *engine.Config {
-	return &p.Config.Config
+func (p *Engine) GetConfig() *config.Template {
+	return p.Config
 }
 
 func (p *Engine) BuildTemplates() error {
 	// Add our filters. first
-	for k, v := range p.Config.Filters {
+	for k, v := range p.Config.Pongo.Filters {
 		pongo2.RegisterFilter(k, v)
 	}
 	if p.Config.Asset == nil || p.Config.AssetNames == nil {

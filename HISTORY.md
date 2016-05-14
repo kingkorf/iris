@@ -1,5 +1,61 @@
 # History
 
+
+## 3.0.0-alpha.1 -> 3.0.0-alpha.2
+
+*The e-book was updated, take a closer look [here](https://www.gitbook.com/book/kataras/iris/details)*
+
+
+**Breaking changes**
+
+**First**. Configuration owns a package now `github.com/kataras/iris/config` . I took this decision after a lot of thought and I ensure you that this is the best
+architecture to easy:
+
+- change the configs without need to re-write all of their fields.
+	```go
+	irisConfig := config.Iris { Profile: true, PathCorrection: false }
+	api := iris.New(irisConfig)
+	```
+
+- easy to remember: `iris` type takes config.Iris, sessions takes config.Sessions`, `iris.Config().Render` is `config.Render`, `iris.Config().Render.Template` is `config.Template`, `Logger` takes `config.Logger` and so on...
+
+- easy to find what features are exists and what you can change: just navigate to the config folder and open the type you want to learn about, for example `/iris.go` Iris' type configuration is on `/config/iris.go`
+
+- default setted fields which you can use. They are already setted by iris, so don't worry too much, but if you ever need them you can find their default configs by this pattern: for example `config.Template` has `config.DefaultTemplate()`, `config.Rest` has `config.DefaultRest()`, `config.Typescript()` has `config.DefaultTypescript()`, note that only `config.Iris` has `config.Default()`. I wrote that all structs even the plugins have their default configs now, to make it easier for you, so you can do this without set a config by yourself: `iris.Config().Render.Template.Engine = config.PongoEngine` or `iris.Config().Render.Template.Pongo.Extensions = []string{".xhtml", ".html"}`.
+
+
+
+**Second**. Template & rest package moved to the `render`, so
+
+		*  a new config field named `render` of type `config.Render` which nests the `config.Template` & `config.Rest`
+		-  `iris.Config().Templates` -> `iris.Config().Render.Template` of type `config.Template`
+		- `iris.Config().Rest` -> `iris.Config().Render.Rest` of type `config.Rest`
+
+**Third, sessions**.
+
+
+
+Configuration instead of parameters. Before `sessions.New("memory","sessionid",time.Duration(42) * time.Minute)` -> Now:  `sessions.New(config.DefaultSessions())` of type `config.Sessions`
+
+- Before this change the cookie's life was the same as the manager's Gc duration. Now added an Expires option for the cookie's life time which defaults to infinitive, as you (correctly) suggests me in the chat community.-
+
+- Default Cookie's expiration date: from 42 minutes -> to  `infinitive/forever`
+- Manager's Gc duration: from 42 minutes -> to '2 hours'
+- Redis store's MaxAgeSeconds: from 42 minutes -> to '1 year`
+
+
+**Four**. Typescript, Editor & IrisControl plugins now accept a config.Typescript/ config.Editor/ config.IrisControl as parameter
+
+Bugfixes
+
+- [can't open /xxx/ path when PathCorrection = false ](https://github.com/kataras/iris/issues/120)
+- [Invalid content on links on debug page when custom ProfilePath is set](https://github.com/kataras/iris/issues/118)
+- [Example with custom config not working ](https://github.com/kataras/iris/issues/115)
+- [Debug Profiler writing escaped HTML?](https://github.com/kataras/iris/issues/107)
+- [CORS middleware doesn't work](https://github.com/kataras/iris/issues/108)
+
+
+
 ## 2.3.2 -> 3.0.0-alpha.1
 
 **Changed**

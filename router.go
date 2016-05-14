@@ -141,7 +141,7 @@ func (r *router) optimize() {
 		debugPath := r.station.config.ProfilePath
 
 		htmlMiddleware := func(ctx *Context) {
-			ctx.SetContentType([]string{ContentHTML + " ;charset=" + DefaultCharset})
+			ctx.SetContentType(ContentHTML + r.station.rest.CompiledCharset)
 			ctx.Next()
 		}
 

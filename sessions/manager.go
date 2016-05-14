@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/context"
 	"github.com/kataras/iris/sessions/store"
 	"github.com/kataras/iris/utils"
@@ -22,10 +23,9 @@ type (
 	// Manager implements the IManager interface
 	// contains the cookie's name, the provider and a duration for GC and cookie life expire
 	Manager struct {
-		cookieName string
-		mu         sync.Mutex
-		provider   IProvider
-		gcDuration time.Duration
+		config   *config.Sessions
+		provider IProvider
+		mu       sync.Mutex
 	}
 )
 
@@ -37,41 +37,24 @@ var (
 )
 
 // newManager creates & returns a new Manager
-// accepts 4 parameters
-// first is the providerName (string) ["memory","redis"]
-// second is the cookieName, the session's name (string) ["mysessionsecretcookieid"]
-// third is the gcDuration (time.Duration) when this time passes it removes the sessions
-// which hasn't be used for a long time(gcDuration), this number is the cookie life(expires) also
-func newManager(providerName string, cookieName string, gcDuration time.Duration) (*Manager, error) {
-	provider, found := providers[providerName]
-	if !found {
-		return nil, ErrProviderNotFound.Format(providerName)
-	}
-	if gcDuration < 1 {
-		gcDuration = time.Duration(60) * time.Minute
-	}
+func newManager(cfg ...config.Sessions) (*Manager, error) {
+	c := config.DefaultSessions().Merge(cfg)
 
-	if cookieName == "" {
-		cookieName = "IrisCookieName"
+	provider, found := providers[c.Provider]
+	if !found {
+		return nil, ErrProviderNotFound.Format(c.Provider)
 	}
 
 	manager := &Manager{}
+	manager.config = &c
 	manager.provider = provider
-	manager.cookieName = cookieName
-
-	manager.gcDuration = gcDuration
 
 	return manager, nil
 }
 
 // New creates & returns a new Manager and start its GC
-// accepts 4 parameters
-// first is the providerName (string) ["memory","redis"]
-// second is the cookieName, the session's name (string) ["mysessionsecretcookieid"]
-// third is the gcDuration (time.Duration) when this time passes it removes the sessions
-// which hasn't be used for a long time(gcDuration), this number is the cookie life(expires) also
-func New(providerName string, cookieName string, gcDuration time.Duration) *Manager {
-	manager, err := newManager(providerName, cookieName, gcDuration)
+func New(cfg ...config.Sessions) *Manager {
+	manager, err := newManager(cfg...)
 	if err != nil {
 		panic(err.Error()) // we have to panic here because we will start GC after and if provider is nil then many panics will come
 	}
@@ -110,18 +93,17 @@ func (m *Manager) Start(ctx context.IContext) store.IStore {
 	m.mu.Lock()
 	var store store.IStore
 	requestCtx := ctx.GetRequestCtx()
-	cookieValue := string(requestCtx.Request.Header.Cookie(m.cookieName))
+	cookieValue := string(requestCtx.Request.Header.Cookie(m.config.Cookie))
 
 	if cookieValue == "" { // cookie doesn't exists, let's generate a session and add set a cookie
 		sid := m.generateSessionID()
 		store, _ = m.provider.Init(sid)
 		cookie := fasthttp.AcquireCookie()
-		cookie.SetKey(m.cookieName)
+		cookie.SetKey(m.config.Cookie)
 		cookie.SetValue(url.QueryEscape(sid))
 		cookie.SetPath("/")
 		cookie.SetHTTPOnly(true)
-		exp := time.Now().Add(m.gcDuration)
-		cookie.SetExpire(exp)
+		cookie.SetExpire(m.config.Expires)
 		requestCtx.Response.Header.SetCookie(cookie)
 		fasthttp.ReleaseCookie(cookie)
 		//println("manager.go:156-> Setting cookie with lifetime: ", m.lifeDuration.Seconds())
@@ -136,7 +118,7 @@ func (m *Manager) Start(ctx context.IContext) store.IStore {
 
 // Destroy kills the session and remove the associated cookie
 func (m *Manager) Destroy(ctx context.IContext) {
-	cookieValue := string(ctx.GetRequestCtx().Request.Header.Cookie(m.cookieName))
+	cookieValue := string(ctx.GetRequestCtx().Request.Header.Cookie(m.config.Cookie))
 	if cookieValue == "" { // nothing to destroy
 		return
 	}
@@ -144,7 +126,7 @@ func (m *Manager) Destroy(ctx context.IContext) {
 	m.mu.Lock()
 	m.provider.Destroy(cookieValue)
 
-	ctx.RemoveCookie(m.cookieName)
+	ctx.RemoveCookie(m.config.Cookie)
 
 	m.mu.Unlock()
 }
@@ -154,9 +136,9 @@ func (m *Manager) Destroy(ctx context.IContext) {
 func (m *Manager) GC() {
 	m.mu.Lock()
 
-	m.provider.GC(m.gcDuration)
+	m.provider.GC(m.config.GcDuration)
 	// set a timer for the next GC
-	time.AfterFunc(m.gcDuration, func() {
+	time.AfterFunc(m.config.GcDuration, func() {
 		m.GC()
 	}) // or m.expire.Unix() if Nanosecond() doesn't works here
 	m.mu.Unlock()

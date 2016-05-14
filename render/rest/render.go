@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/utils"
 	"github.com/valyala/fasthttp"
 )
@@ -8,8 +9,6 @@ import (
 const (
 	// ContentBinary header value for binary data.
 	ContentBinary = "application/octet-stream"
-	// ContentHTML header value for HTML data.
-	ContentHTML = "text/html"
 	// ContentJSON header value for JSON data.
 	ContentJSON = "application/json"
 	// ContentJSONP header value for JSONP data.
@@ -22,48 +21,26 @@ const (
 	ContentType = "Content-Type"
 	// ContentXML header value for XML data.
 	ContentXML = "text/xml"
-	// Default character encoding.
-	defaultCharset = "UTF-8"
 )
 
 // bufPool represents a reusable buffer pool for executing templates into.
 var bufPool *utils.BufferPool
 
-// Config is a struct for specifying configuration options for the render.Render object.
-type Config struct {
-	// Appends the given character set to the Content-Type header. Default is "UTF-8".
-	Charset string
-	// Gzip enable it if you want to render with gzip compression. Default is false
-	Gzip bool
-	// Outputs human readable JSON.
-	IndentJSON bool
-	// Outputs human readable XML. Default is false.
-	IndentXML bool
-	// Prefixes the JSON output with the given bytes. Default is false.
-	PrefixJSON []byte
-	// Prefixes the XML output with the given bytes.
-	PrefixXML []byte
-	// Unescape HTML characters "&<>" to their original values. Default is false.
-	UnEscapeHTML bool
-	// Streams JSON responses instead of marshalling prior to sending. Default is false.
-	StreamingJSON bool
-	// Disables automatic rendering of http.StatusInternalServerError when an error occurs. Default is false.
-	DisableHTTPErrorRendering bool
-}
-
 // Render is a service that provides functions for easily writing JSON, XML,
 // binary data, and HTML templates out to a HTTP Response.
 type Render struct {
 	// Customize Secure with an Options struct.
-	Config          Config
-	compiledCharset string
+	Config          config.Rest
+	CompiledCharset string
 }
 
 // New constructs a new Render instance with the supplied configs.
-func New(c Config) *Render {
+func New(cfg ...config.Rest) *Render {
 	if bufPool == nil {
 		bufPool = utils.NewBufferPool(64)
 	}
+
+	c := config.DefaultRest().Merge(cfg)
 
 	r := &Render{
 		Config: c,
@@ -77,9 +54,9 @@ func New(c Config) *Render {
 func (r *Render) prepareConfig() {
 	// Fill in the defaults if need be.
 	if len(r.Config.Charset) == 0 {
-		r.Config.Charset = defaultCharset
+		r.Config.Charset = config.Charset
 	}
-	r.compiledCharset = "; charset=" + r.Config.Charset
+	r.CompiledCharset = "; charset=" + r.Config.Charset
 }
 
 // Render is the generic function called by XML, JSON, Data, HTML, and can be called by custom implementations.
@@ -115,7 +92,7 @@ func (r *Render) Data(ctx *fasthttp.RequestCtx, status int, v []byte) error {
 // JSON marshals the given interface object and writes the JSON response.
 func (r *Render) JSON(ctx *fasthttp.RequestCtx, status int, v interface{}) error {
 	head := Head{
-		ContentType: ContentJSON + r.compiledCharset,
+		ContentType: ContentJSON + r.CompiledCharset,
 		Status:      status,
 	}
 
@@ -133,7 +110,7 @@ func (r *Render) JSON(ctx *fasthttp.RequestCtx, status int, v interface{}) error
 // JSONP marshals the given interface object and writes the JSON response.
 func (r *Render) JSONP(ctx *fasthttp.RequestCtx, status int, callback string, v interface{}) error {
 	head := Head{
-		ContentType: ContentJSONP + r.compiledCharset,
+		ContentType: ContentJSONP + r.CompiledCharset,
 		Status:      status,
 	}
 
@@ -149,7 +126,7 @@ func (r *Render) JSONP(ctx *fasthttp.RequestCtx, status int, callback string, v 
 // Text writes out a string as plain text.
 func (r *Render) Text(ctx *fasthttp.RequestCtx, status int, v string) error {
 	head := Head{
-		ContentType: ContentText + r.compiledCharset,
+		ContentType: ContentText + r.CompiledCharset,
 		Status:      status,
 	}
 
@@ -163,7 +140,7 @@ func (r *Render) Text(ctx *fasthttp.RequestCtx, status int, v string) error {
 // XML marshals the given interface object and writes the XML response.
 func (r *Render) XML(ctx *fasthttp.RequestCtx, status int, v interface{}) error {
 	head := Head{
-		ContentType: ContentXML + r.compiledCharset,
+		ContentType: ContentXML + r.CompiledCharset,
 		Status:      status,
 	}
 

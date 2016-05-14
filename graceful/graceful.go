@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/kataras/iris"
+	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/logger"
 	"github.com/kataras/iris/server"
 	"golang.org/x/net/netutil"
@@ -77,7 +78,7 @@ func Run(addr string, timeout time.Duration, n *iris.Iris) {
 		Logger:  DefaultLogger(),
 	}
 	srv.station = n
-	srv.Server = srv.station.DoPreListen(server.Config{ListeningAddr: addr})
+	srv.Server = srv.station.PreListen(config.Server{ListeningAddr: addr})
 
 	if err := srv.listenAndServe(); err != nil {
 		if opErr, ok := err.(*net.OpError); !ok || (ok && opErr.Op != "accept") {
@@ -97,7 +98,7 @@ func RunWithErr(addr string, timeout time.Duration, n *iris.Iris) error {
 		Logger:  DefaultLogger(),
 	}
 	srv.station = n
-	srv.Server = srv.station.DoPreListen(server.Config{ListeningAddr: addr})
+	srv.Server = srv.station.PreListen(config.Server{ListeningAddr: addr})
 	return srv.listenAndServe()
 }
 
@@ -142,7 +143,7 @@ func (srv *Server) serve(listener net.Listener) error {
 
 	// Serve with graceful listener.
 	// Execution blocks here until listener.Close() is called, above.
-	srv.station.DoPostListen()
+	srv.station.PostListen()
 	err := srv.Server.Serve(listener)
 	if err != nil {
 		// If the underlying listening is closed, Serve returns an error
