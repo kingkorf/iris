@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/valyala/fasthttp"
+
 	"github.com/kataras/iris/utils"
 )
 
@@ -91,4 +93,21 @@ func (ctx *Context) RequestHeader(k string) string {
 // PostFormValue returns a single value from post request's data
 func (ctx *Context) PostFormValue(name string) string {
 	return string(ctx.RequestCtx.PostArgs().Peek(name))
+}
+
+/* Credits to Manish Singh @kryptodev for URLEncode */
+// URLEncode returns the path encoded as url
+// useful when you want to pass something to a database and be valid to retrieve it via context.Param
+// use it only for special cases, when the default behavior doesn't suits you.
+//
+// http://www.blooberry.com/indexdot/html/topics/urlencoding.htm
+func URLEncode(path string) string {
+	if path == "" {
+		return ""
+	}
+	u := fasthttp.AcquireURI()
+	u.SetPath(path)
+	encodedPath := u.String()[8:]
+	fasthttp.ReleaseURI(u)
+	return encodedPath
 }
