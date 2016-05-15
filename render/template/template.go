@@ -3,8 +3,8 @@ package template
 import (
 	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/context"
+	"github.com/kataras/iris/render/template/engine/html"
 	"github.com/kataras/iris/render/template/engine/pongo"
-	"github.com/kataras/iris/render/template/engine/standar"
 )
 
 type (
@@ -34,7 +34,7 @@ func New(cfg ...config.Template) *Template {
 	case config.PongoEngine:
 		e = pongo.New(c)
 	default:
-		e = standar.New(c) // default to standar
+		e = html.New(c) // default to HTMLTemplate
 	}
 
 	if err := e.BuildTemplates(); err != nil { // first build the templates, if error panic because this is called before server's run

@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	StandarEngine EngineType = 0
-	PongoEngine   EngineType = 1
+	HTMLEngine  EngineType = 0
+	PongoEngine EngineType = 1
+
+	DefaultEngine EngineType = HTMLEngine
 )
 
 var (
@@ -43,7 +45,7 @@ type (
 	EngineType uint8
 
 	Template struct {
-		// contains common configs for both standar & pongo
+		// contains common configs for both HTMLTemplate & Pongo
 		Engine        EngineType
 		Gzip          bool
 		IsDevelopment bool
@@ -54,16 +56,16 @@ type (
 		Asset         func(name string) ([]byte, error)
 		AssetNames    func() []string
 		Layout        string
-		Standar       Standar // contains specific configs for standar html/template
-		Pongo         Pongo   // contains specific configs for pongo2
+		HTMLTemplate  HTMLTemplate // contains specific configs for  HTMLTemplate standard html/template
+		Pongo         Pongo        // contains specific configs for pongo2
 	}
 
-	Standar struct {
+	HTMLTemplate struct {
 		RequirePartials bool
 		// Delims
 		Left  string
 		Right string
-		// Funcs for Standar
+		// Funcs for HTMLTemplate html/template
 		Funcs []template.FuncMap
 	}
 
@@ -112,7 +114,7 @@ func (c Rest) MergeSingle(cfg Rest) (config Rest) {
 
 func DefaultTemplate() Template {
 	return Template{
-		Engine:        StandarEngine,
+		Engine:        DefaultEngine, //or HTMLTemplate
 		Gzip:          false,
 		IsDevelopment: false,
 		Directory:     "templates",
@@ -120,7 +122,7 @@ func DefaultTemplate() Template {
 		ContentType:   "text/html",
 		Charset:       "UTF-8",
 		Layout:        "", // currently this is the only config which not working for pongo2 yet but I will find a way
-		Standar:       Standar{Left: "{{", Right: "}}", Funcs: make([]template.FuncMap, 0)},
+		HTMLTemplate:  HTMLTemplate{Left: "{{", Right: "}}", Funcs: make([]template.FuncMap, 0)},
 		Pongo:         Pongo{Filters: make(map[string]pongo2.FilterFunction, 0)},
 	}
 }

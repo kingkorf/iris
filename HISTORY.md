@@ -65,7 +65,7 @@ Bugfixes
 - `License BSD-3 Clause Open source` -> `MIT License`
 **Added**
 
-- Switch template engines via `IrisConfig`. Currently, Standar is 'html/template'. Pongo is 'flosch/pongo2`. Refer to the Book, which is updated too, [read here](https://kataras.gitbooks.io/iris/content/render.html).
+- Switch template engines via `IrisConfig`. Currently, HTMLTemplate is 'html/template'. Pongo is 'flosch/pongo2`. Refer to the Book, which is updated too, [read here](https://kataras.gitbooks.io/iris/content/render.html).
 
 
 ## 2.2.4 -> 2.3.0
