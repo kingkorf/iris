@@ -190,7 +190,7 @@ May 12 2016
 ### Versioning
 Compatible only with go1.6+
 
-Current: **v3.0.0-alpha.2**
+Current: **v3.0.0-alpha.3**
 
 
 Read more about Semantic Versioning 2.0.0
@@ -203,10 +203,9 @@ Read more about Semantic Versioning 2.0.0
 ### Third party packages
 
 - [fasthttp](https://github.com/valyala/fasthttp)
-- [formam](https://github.com/monoculum/formam)
 - [i18n](https://github.com/Unknwon/i18n)
 - [pongo2 as one of the build'n template engines](https://github.com/flosch/pongo2)
-- [mergo as struct merge for configs](https://github.com/imdario/mergo)
+- [mergo as for merge configs](https://github.com/imdario/mergo)
 
 ### Contributors
 

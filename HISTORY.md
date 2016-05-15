@@ -1,5 +1,75 @@
 # History
 
+## 3.0.0-alpha.2 -> 3.0.0-alpha.3
+
+The only change here is a panic-fix on form bindings. Now **no need to make([]string,0)** before form binding, new example:
+
+```go
+ //./main.go
+
+package main
+
+import (
+	"fmt"
+
+	"github.com/kataras/iris"
+)
+
+type Visitor struct {
+	Username string
+	Mail     string
+	Data     []string `form:"mydata"`
+}
+
+func main() {
+
+	iris.Get("/", func(ctx *iris.Context) {
+		ctx.Render("form.html", nil)
+	})
+
+	iris.Post("/form_action", func(ctx *iris.Context) {
+		visitor := Visitor{}
+		err := ctx.ReadForm(&visitor)
+		if err != nil {
+			fmt.Println("Error when reading form: " + err.Error())
+		}
+		fmt.Printf("\n Visitor: %v", visitor)
+	})
+
+	fmt.Println("Server is running at :8080")
+	iris.Listen(":8080")
+}
+
+```
+
+```html
+
+<!-- ./templates/form.html -->
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+<form action="/form_action" method="post">
+<input type="text" name="Username" />
+<br/>
+<input type="text" name="Mail" /><br/>
+<select multiple="multiple" name="mydata">
+<option value='one'>One</option>
+<option value='two'>Two</option>
+<option value='three'>Three</option>
+<option value='four'>Four</option>
+</select>
+<hr/>
+<input type="submit" value="Send data" />
+
+</form>
+</body>
+</html>
+
+```
+
+
 
 ## 3.0.0-alpha.1 -> 3.0.0-alpha.2
 

@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/valyala/fasthttp"
-
+	"github.com/kataras/iris/bindings"
 	"github.com/kataras/iris/utils"
+	"github.com/valyala/fasthttp"
 )
 
 // Param returns the string representation of the key's path named parameter's value
@@ -110,4 +110,20 @@ func URLEncode(path string) string {
 	encodedPath := u.String()[8:]
 	fasthttp.ReleaseURI(u)
 	return encodedPath
+}
+
+// ReadJSON reads JSON from request's body
+func (ctx *Context) ReadJSON(jsonObject interface{}) error {
+	return bindings.BindJSON(ctx, jsonObject)
+}
+
+// ReadXML reads XML from request's body
+func (ctx *Context) ReadXML(xmlObject interface{}) error {
+	return bindings.BindXML(ctx, xmlObject)
+}
+
+// ReadForm binds the formObject  with the form data
+// it supports any kind of struct
+func (ctx *Context) ReadForm(formObject interface{}) error {
+	return bindings.BindForm(ctx, formObject)
 }
