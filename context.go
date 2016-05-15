@@ -1,6 +1,6 @@
 /*
 Context.go  Implements: ./context/context.go ,
-files: context_binder.go, context_renderer.go, context_storage.go, context_request.go, context_response.go
+files: context_renderer.go, context_storage.go, context_request.go, context_response.go
 */
 
 package iris

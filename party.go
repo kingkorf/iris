@@ -247,6 +247,7 @@ func (p *GardenParty) Static(relative string, systemPath string, stripSlashes in
 
 	h := StaticHandlerFunc(systemPath, stripSlashes, false, false)
 	p.Get(relative+"*filepath", h)
+	p.Head(relative+"*filepath", h)
 }
 
 // StaticFS registers a route which serves a system directory
@@ -267,6 +268,7 @@ func (p *GardenParty) StaticFS(relative string, systemPath string, stripSlashes 
 
 	h := StaticHandlerFunc(systemPath, stripSlashes, true, true)
 	p.Get(relative+"*filepath", h)
+	p.Head(relative+"*filepath", h)
 }
 
 // StaticWeb same as Static but if index.html exists and request uri is '/' then display the index.html's contents
@@ -284,13 +286,15 @@ func (p *GardenParty) StaticWeb(relative string, systemPath string, stripSlashes
 
 	hasIndex := utils.Exists(systemPath + utils.PathSeparator + "index.html")
 	serveHandler := StaticHandlerFunc(systemPath, 1, false, !hasIndex) // if not index.html exists then generate index.html which shows the list of files
-	p.Get(relative+"*filepath", func(ctx *Context) {
+	indexHandler := func(ctx *Context) {
 		if len(ctx.Param("filepath")) < 2 && hasIndex {
 			ctx.Request.SetRequestURI("index.html")
 		}
 		ctx.Next()
 
-	}, serveHandler)
+	}
+	p.Get(relative+"*filepath", indexHandler, serveHandler)
+	p.Head(relative+"*filepath", indexHandler, serveHandler)
 }
 
 // Party is just a group joiner of routes which have the same prefix and share same middleware(s) also.
