@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	NoEngine    EngineType = -1
 	HTMLEngine  EngineType = 0
 	PongoEngine EngineType = 1
 
@@ -42,7 +43,7 @@ type (
 		DisableHTTPErrorRendering bool
 	}
 
-	EngineType uint8
+	EngineType int8
 
 	Template struct {
 		// contains common configs for both HTMLTemplate & Pongo

@@ -1,6 +1,8 @@
 package template
 
 import (
+	"fmt"
+
 	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/context"
 	"github.com/kataras/iris/render/template/engine/html"
@@ -31,10 +33,12 @@ func New(cfg ...config.Template) *Template {
 	var e Engine
 	// [ENGINE-2]
 	switch c.Engine {
+	case config.HTMLEngine:
+		e = html.New(c) //  HTMLTemplate
 	case config.PongoEngine:
-		e = pongo.New(c)
-	default:
-		e = html.New(c) // default to HTMLTemplate
+		e = pongo.New(c) // Pongo2
+	default: // it's the config.NoEngine
+		return nil
 	}
 
 	if err := e.BuildTemplates(); err != nil { // first build the templates, if error panic because this is called before server's run
@@ -54,6 +58,12 @@ func New(cfg ...config.Template) *Template {
 }
 
 func (t *Template) Render(ctx context.IContext, name string, bindings interface{}, layout ...string) error {
+
+	if t == nil { // No engine was given but .Render was called
+		ctx.WriteHTML(403, "<b> Iris </b> <br/> Templates are disabled via config.NoEngine, check your iris' configuration please.")
+		return fmt.Errorf("[IRIS TEMPLATES] Templates are disabled via config.NoEngine, check your iris' configuration please.\n")
+	}
+
 	// build templates again on each render if IsDevelopment.
 	if t.IsDevelopment {
 		if err := t.Engine.BuildTemplates(); err != nil {

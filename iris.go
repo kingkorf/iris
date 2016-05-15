@@ -22,6 +22,14 @@ const (
 	Version = "v3.0.0-alpha.3"
 )
 
+/* for conversion, only these */
+var (
+	HTMLEngine    = config.HTMLEngine
+	PongoEngine   = config.PongoEngine
+	DefaultEngine = config.DefaultEngine
+	NoEngine      = config.NoEngine
+)
+
 type (
 
 	// Iris is the container of all, server, router, cache and the sync.Pool
@@ -95,7 +103,6 @@ func (s *Iris) PostListen() {
 
 	//set the  rest (for Data, Text, JSON, JSONP, XML)
 	s.rest = rest.New(s.config.Render.Rest)
-
 	// set the templates
 	s.templates = template.New(s.config.Render.Template)
 

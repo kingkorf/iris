@@ -153,6 +153,11 @@ func Any(path string, handlersFn ...HandlerFunc) {
 	DefaultIris.Any(path, handlersFn...)
 }
 
+// StaticHandlerFunc returns a HandlerFunc to serve static system directory
+func StaticHandlerFunc(systemPath string, stripSlashes int, compress bool, generateIndexPages bool) HandlerFunc {
+	return DefaultIris.StaticHandlerFunc(systemPath, stripSlashes, compress, generateIndexPages)
+}
+
 // Static registers a route which serves a system directory
 // this doesn't generates an index page which list all files
 // no compression is used also, for these features look at StaticFS func
