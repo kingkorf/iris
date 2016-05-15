@@ -11,10 +11,42 @@ a modern, **community-driven** **web** application **framework** for **Go**. Com
 
 **Easy to learn** while providing robust set of features for building **modern & shiny web applications**.
 
-<a href="https://www.gitbook.com/read/book/kataras/iris"><img align="left" width="185" src="https://raw.githubusercontent.com/kataras/iris/gh-pages/assets/book/cover_1.png"></a>
+<a href="https://www.gitbook.com/book/kataras/iris/details"><img align="left" width="185" src="https://raw.githubusercontent.com/kataras/iris/gh-pages/assets/book/cover_1.png"></a>
 
 ![Hi Iris GIF](http://kataras.github.io/iris/assets/hi_iris_may.gif)
 
+
+### Hi
+
+**Django-syntax, flosch/pongo2**
+
+```html
+<!-- ./templates/hi.html -->
+<html><head> <title> Hi Iris [THE TITLE] </title> </head>
+  <body>
+    <h1> Hi {{ Name }}
+  </body>
+</html>
+
+```
+
+```go
+// ./main.go
+import (
+    "github.com/kataras/iris"
+    "github.com/kataras/iris/config"
+)
+
+func main() {
+    iris.Config().Render.Template.Engine = config.PongoEngine
+	iris.Get("/hi", hi)
+	iris.Listen(":8080")
+}
+
+func hi(ctx *iris.Context){
+   ctx.Render("hi.html", map[string]interface{}{"Name": "iris"})
+}
+```
 
 * **Switch between template engines**: Select the way you like to parse your html files, switchable via one-line-configuration, [read more](https://kataras.gitbooks.io/iris/content/render.html)
 * **Typescript**: Auto-compile & Watch your client side code via the [typescript plugin](https://kataras.gitbooks.io/iris/content/plugin-typescript.html)
@@ -38,105 +70,11 @@ a modern, **community-driven** **web** application **framework** for **Go**. Com
 * **Zero configuration**:  No need to configure anything, unless you're forced to. Default configurations everywhere, which you can change with ease
 * **Zero allocations**: Iris generates zero garbage.
 
-### Hi
-
-```go
-package main
-
-import "github.com/kataras/iris"
-
-func main() {
-	iris.Get("/hi", func(ctx *iris.Context) {
-		ctx.Write("Hi %s", "iris")
-	})
-	iris.Listen(":8080")
-    //err := iris.ListenWithErr(":8080")
-}
-
-```
-
-The same
-```go
-package main
-
-import "github.com/kataras/iris"
-
-func main() {
-    api := iris.New()
-	api.Get("/hi", hi)
-	api.Listen(":8080")
-}
-
-func hi(ctx *iris.Context){
-   ctx.Write("Hi %s", "iris")
-}
-
-```
-
-Rich Hi with **html/template**
-
-```html
-<!-- ./templates/hi.html -->
-<html><head> <title> Hi Iris [THE TITLE] </title> </head>
-  <body>
-    <h1> Hi {{.Name}}
-  </body>
-</html>
-
-
-```
-
-```go
-// ./main.go
-import "github.com/kataras/iris"
-
-func main() {
-	iris.Get("/hi", hi)
-	iris.Listen(":8080")
-}
-
-func hi(ctx *iris.Context){
-   ctx.Render("hi.html", struct { Name string }{ Name: "iris" })
-}
-
-```
-
-Rich Hi with **Django-syntax, flosch/pongo2**
-
-```html
-<!-- ./templates/hi.html -->
-<html><head> <title> Hi Iris [THE TITLE] </title> </head>
-  <body>
-    <h1> Hi {{ Name }}
-  </body>
-</html>
-
-
-```
-
-```go
-// ./main.go
-import (
-    "github.com/kataras/iris"
-    "github.com/kataras/iris/config"
-)
-
-func main() {
-    iris.Config().Render.Template.Engine = config.PongoEngine
-	iris.Get("/hi", hi)
-	iris.Listen(":8080")
-}
-
-func hi(ctx *iris.Context){
-   ctx.Render("hi.html", map[string]interface{}{"Name": "iris"})
-}
-
-```
 
 - More about configuration [here](https://kataras.gitbooks.io/iris/content/configuration.html)
 - More about render and template engines [here](https://kataras.gitbooks.io/iris/content/render.html)
 
-### Getting started
+## Getting started
 
 1. Install `$ go get -u github.com/kataras/iris`
  >If you are connected to the Internet through China [click here](https://kataras.gitbooks.io/iris/content/install.html)
