@@ -16,13 +16,10 @@ a modern, **community-driven** **web** application **framework** for **Go**. Com
 ![Hi Iris GIF](http://kataras.github.io/iris/assets/hi_iris_may.gif)
 
 
-### Hi
-
-**Django-syntax, flosch/pongo2**
 
 ```html
 <!-- ./templates/hi.html -->
-<html><head> <title> Hi Iris [THE TITLE] </title> </head>
+<html><head> <title> Hi Django-syntax </title> </head>
   <body>
     <h1> Hi {{ Name }}
   </body>
@@ -48,6 +45,7 @@ func hi(ctx *iris.Context){
 }
 ```
 
+
 * **Switch between template engines**: Select the way you like to parse your html files, switchable via one-line-configuration, [read more](https://kataras.gitbooks.io/iris/content/render.html)
 * **Typescript**: Auto-compile & Watch your client side code via the [typescript plugin](https://kataras.gitbooks.io/iris/content/plugin-typescript.html)
 * **Online IDE**: Edit & Compile your client side code when you are not home via the [editor plugin](https://kataras.gitbooks.io/iris/content/plugin-editor.html)
@@ -71,8 +69,9 @@ func hi(ctx *iris.Context){
 * **Zero allocations**: Iris generates zero garbage.
 
 
-- More about configuration [here](https://kataras.gitbooks.io/iris/content/configuration.html)
-- More about render and template engines [here](https://kataras.gitbooks.io/iris/content/render.html)
+
+	- More about configuration [here](https://kataras.gitbooks.io/iris/content/configuration.html)
+	- More about render and template engines [here](https://kataras.gitbooks.io/iris/content/render.html)
 
 ## Getting started
 
@@ -87,7 +86,7 @@ func hi(ctx *iris.Context){
 
 5. Chat with the [Community](https://gitter.im/kataras/iris)
 
-### Community
+## Community
 
 **Open debates**
 
@@ -103,7 +102,7 @@ func hi(ctx *iris.Context){
 
 
 
-### Benchmarks
+## Benchmarks
 
 
 Benchmarks results taken [from external source](https://github.com/smallnest/go-web-framework-benchmark), created by [@smallnest](https://github.com/smallnest).
@@ -125,7 +124,7 @@ May 12 2016
 *    ...
 *    ...
 
-### Versioning
+## Versioning
 Compatible only with go1.6+
 
 Current: **v3.0.0-alpha.3**
@@ -138,14 +137,14 @@ Read more about Semantic Versioning 2.0.0
  - https://wiki.debian.org/UpstreamGuide#Releases_and_Versions
 
 
-### Third party packages
+## Third party packages
 
 - [fasthttp](https://github.com/valyala/fasthttp)
 - [i18n](https://github.com/Unknwon/i18n)
 - [pongo2 as one of the build'n template engines](https://github.com/flosch/pongo2)
 - [mergo as for merge configs](https://github.com/imdario/mergo)
 
-### Contributors
+## Contributors
 
 Thanks goes to the people who have contributed code to this package, see the
 
@@ -153,7 +152,7 @@ Thanks goes to the people who have contributed code to this package, see the
 - [Iris Contrib GitHub Contributors page](https://github.com/orgs/iris-contrib/people).
 
 
-### Todo
+## Todo
 > for the next release 'v3'
 
 - [ ] Implement a middleware or plugin for easy & secure user authentication, stored in (no)database redis/mysql and make use of [sessions](https://github.com/kataras/iris/tree/master/sessions).
@@ -162,18 +161,17 @@ Thanks goes to the people who have contributed code to this package, see the
 - [ ] Extend, test and publish to the public the Iris' cmd.
 
 
-### Donations
+## Donations
 
-I am a student at the [University of Central Macedonia](http://teiser.gr/), therefore I have no income value.
+I am a student at the [University of Central Macedonia](http://teiser.gr/index.php?lang=en).emit
+I spend all my time in the construction of Iris Web Framework, therefore I have no income value.
 
-From a younger age I have dedicated all my time to various open source projects, including, my lovely child, Iris.
-
-**If and only if** you think that any information you obtained here is worth something  and you are willing to pay for it(and you can afford it),  feel free to send any amount through paypal
+If you think that any information you obtained here is worth something and you are willing to pay for it, feel free to send any amount through paypal.
 
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=makis%40ideopod%2ecom&lc=GR&item_name=Iris%20web%20framework&item_number=iriswebframeworkdonationid2016&amount=2%2e00&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
 
 
-### License
+## License
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 License can be found [here](https://github.com/kataras/iris/blob/master/LICENSE).
