@@ -202,7 +202,7 @@ func (he *HTTPErrorContainer) OnError(httpStatus int, handler HandlerFunc) {
 func (he *HTTPErrorContainer) EmitError(errCode int, ctx *Context) {
 
 	if errHandler := he.GetByCode(errCode); errHandler != nil {
-		//ctx.SetStatusCode(errCode) this will be handled by the custom error context, better, maybe the developer wants to redirect somewhere on 404 and not send this http status
+		ctx.SetStatusCode(errCode) // for any case, user can change it after if want to
 		errHandler.GetHandler().Serve(ctx)
 	} else {
 		//if no error is registed, then register it with the default http error text, and re-run the Emit

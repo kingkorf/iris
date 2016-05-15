@@ -226,10 +226,11 @@ func (p *GardenParty) StaticHandlerFunc(systemPath string, stripSlashes int, com
 	h := fs.NewRequestHandler()
 	return func(ctx *Context) {
 		h(ctx.RequestCtx)
-
+		errCode := ctx.RequestCtx.Response.StatusCode()
 		ctx.RequestCtx.Response.ResetBody()
-		println(ctx.RequestCtx.Response.StatusCode())
-		ctx.EmitError(ctx.RequestCtx.Response.StatusCode())
+
+		ctx.EmitError(errCode)
+
 		ctx.Next() // for any case
 	}
 }
