@@ -206,7 +206,7 @@ func (p *GardenParty) UseFunc(handlersFn ...HandlerFunc) {
 }
 
 // StaticHandlerFunc returns a HandlerFunc to serve static system directory
-func StaticHandlerFunc(systemPath string, stripSlashes int, compress bool, generateIndexPages bool) HandlerFunc {
+func (p *GardenParty) StaticHandlerFunc(systemPath string, stripSlashes int, compress bool, generateIndexPages bool) HandlerFunc {
 	fs := &fasthttp.FS{
 		// Path to directory to serve.
 		Root: systemPath,
@@ -224,9 +224,13 @@ func StaticHandlerFunc(systemPath string, stripSlashes int, compress bool, gener
 
 	// Create request handler for serving static files.
 	h := fs.NewRequestHandler()
-
 	return func(ctx *Context) {
 		h(ctx.RequestCtx)
+
+		ctx.RequestCtx.Response.ResetBody()
+		println(ctx.RequestCtx.Response.StatusCode())
+		ctx.EmitError(ctx.RequestCtx.Response.StatusCode())
+		ctx.Next() // for any case
 	}
 }
 
@@ -245,7 +249,8 @@ func (p *GardenParty) Static(relative string, systemPath string, stripSlashes in
 		relative += "/"
 	}
 
-	h := StaticHandlerFunc(systemPath, stripSlashes, false, false)
+	h := p.StaticHandlerFunc(systemPath, stripSlashes, false, false)
+
 	p.Get(relative+"*filepath", h)
 	p.Head(relative+"*filepath", h)
 }
@@ -266,7 +271,7 @@ func (p *GardenParty) StaticFS(relative string, systemPath string, stripSlashes 
 		relative += "/"
 	}
 
-	h := StaticHandlerFunc(systemPath, stripSlashes, true, true)
+	h := p.StaticHandlerFunc(systemPath, stripSlashes, true, true)
 	p.Get(relative+"*filepath", h)
 	p.Head(relative+"*filepath", h)
 }
@@ -285,7 +290,7 @@ func (p *GardenParty) StaticWeb(relative string, systemPath string, stripSlashes
 	}
 
 	hasIndex := utils.Exists(systemPath + utils.PathSeparator + "index.html")
-	serveHandler := StaticHandlerFunc(systemPath, 1, false, !hasIndex) // if not index.html exists then generate index.html which shows the list of files
+	serveHandler := p.StaticHandlerFunc(systemPath, 1, false, !hasIndex) // if not index.html exists then generate index.html which shows the list of files
 	indexHandler := func(ctx *Context) {
 		if len(ctx.Param("filepath")) < 2 && hasIndex {
 			ctx.Request.SetRequestURI("index.html")
