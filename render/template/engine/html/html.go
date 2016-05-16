@@ -73,7 +73,7 @@ func (s *Engine) buildFromDir() error {
 
 	var templateErr error
 	var minifier *minify.M
-	if s.Config.HTMLTemplate.Minify {
+	if s.Config.Minify {
 		minifier = minify.New()
 		minifier.AddFunc("text/html", htmlMinifier.Minify)
 	} // Note: I know that I have dublicates method between pongo and html but I made it because other template engines (in the future) already minify their templates*
@@ -104,7 +104,7 @@ func (s *Engine) buildFromDir() error {
 		for _, extension := range s.Config.Extensions {
 			if ext == extension {
 				buf, err := ioutil.ReadFile(path)
-				if s.Config.HTMLTemplate.Minify {
+				if s.Config.Minify {
 					buf, err = minifier.Bytes("text/html", buf)
 				}
 

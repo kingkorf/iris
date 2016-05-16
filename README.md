@@ -32,7 +32,9 @@ Iris: Community-driven, mini web application framework for Go Programming Langua
 import  "github.com/kataras/iris"
 
 func main() {
+	iris.Config().Render.Template.Minify = true // defaults to true already :)
     iris.Config().Render.Template.Engine = iris.PongoEngine
+
 	iris.Get("/hi", hi)
 	iris.Listen(":8080")
 }
@@ -121,7 +123,7 @@ May 12 2016
 Versioning
 ------------
 
-Current: **v3.0.0-alpha.3**
+Current: **v3.0.0-alpha.4**
 
 
 Read more about Semantic Versioning 2.0.0

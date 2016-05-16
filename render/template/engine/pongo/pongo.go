@@ -6,14 +6,21 @@ package pongo
 */
 import (
 	"compress/gzip"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"sync"
+
+	"fmt"
 
 	"github.com/flosch/pongo2"
 	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/context"
 	"github.com/kataras/iris/utils"
+	"github.com/tdewolff/minify"
+	htmlMinifier "github.com/tdewolff/minify/html"
 )
 
 var (
@@ -22,8 +29,9 @@ var (
 
 type (
 	Engine struct {
-		Config    *config.Template
-		Templates *pongo2.TemplateSet
+		Config        *config.Template
+		templateCache map[string]*pongo2.Template
+		mu            sync.Mutex
 	}
 )
 
@@ -32,8 +40,7 @@ func New(c config.Template) *Engine {
 	if buffer == nil {
 		buffer = utils.NewBufferPool(64)
 	}
-
-	return &Engine{Config: &c}
+	return &Engine{Config: &c, templateCache: make(map[string]*pongo2.Template)}
 }
 
 func (p *Engine) GetConfig() *config.Template {
@@ -57,14 +64,21 @@ func (p *Engine) buildFromDir() (templateErr error) {
 	if p.Config.Directory == "" {
 		return nil //we don't return fill error here(yet)
 	}
-
 	dir := p.Config.Directory
+
+	var minifier *minify.M
+	if p.Config.Minify {
+		minifier = minify.New()
+		minifier.AddFunc("text/html", htmlMinifier.Minify)
+	}
+
 	fsLoader, err := pongo2.NewLocalFileSystemLoader(dir) // I see that this doesn't read the content if already parsed, so do it manually via filepath.Walk
 	if err != nil {
 		return err
 	}
 
-	p.Templates = pongo2.NewSet("", fsLoader)
+	set := pongo2.NewSet("", fsLoader)
+
 	// Walk the supplied directory and compile any files that match our extension list.
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		// Fix same-extension-dirs bug: some dir might be named to: "users.tmpl", "local.html".
@@ -87,23 +101,21 @@ func (p *Engine) buildFromDir() (templateErr error) {
 
 		for _, extension := range p.Config.Extensions {
 			if ext == extension {
-				/*	buf, err := ioutil.ReadFile(path)
-					if err != nil {
-						templateErr = err
-						break
-					}
-					if p.Config.Minify {
-						buf, err = minifier.Bytes("text/html", buf)
-					}
-					if err != nil {
-						templateErr = err
-						break
-					}
-					// HERE PONGO2 UNMINIFIES THE MINIFIED STRING BYTES FOR TOKENIZE, THEN THE MINIFIER CAN'T WORK WITH PONGO, this is sad.
-					_, err = p.Templates.FromString(string(buf))
-				*/
+				buf, err := ioutil.ReadFile(path)
+				if err != nil {
+					templateErr = err
+					break
+				}
+				if p.Config.Minify {
+					buf, err = minifier.Bytes("text/html", buf)
+				}
+				if err != nil {
+					templateErr = err
+					break
+				}
+				p.templateCache[rel], templateErr = set.FromString(string(buf))
 
-				_, templateErr = p.Templates.FromCache(rel) // use Relative, no from path because it calculates the basedir of the fsLoader
+				//_, templateErr = p.Templates.FromCache(rel) // use Relative, no from path because it calculates the basedir of the fsLoader
 				if templateErr != nil {
 					return templateErr // break the file walk(;)
 				}
@@ -123,7 +135,7 @@ func (p *Engine) buildFromAsset() error {
 	if err != nil {
 		return err
 	}
-	p.Templates = pongo2.NewSet("", fsLoader)
+	set := pongo2.NewSet("", fsLoader)
 	for _, path := range p.Config.AssetNames() {
 		if !strings.HasPrefix(path, dir) {
 			continue
@@ -147,7 +159,7 @@ func (p *Engine) buildFromAsset() error {
 					templateErr = err
 					break
 				}
-				_, err = p.Templates.FromString(string(buf)) // I don't konw if that will work, yet
+				p.templateCache[rel], err = set.FromString(string(buf)) // I don't konw if that will work, yet
 				if err != nil {
 					templateErr = err
 					break
@@ -176,44 +188,57 @@ func getPongoContext(templateData interface{}) pongo2.Context {
 	return nil
 }
 
-func (p *Engine) Execute(ctx context.IContext, name string, binding interface{}, layout string) error {
-	// get the template from cache, I never used pongo2 but I think reading its code helps me to understand that this is the best way to do it with the best performance.
-	tmpl, err := p.Templates.FromCache(name)
-	if err != nil {
-		return err
+func (p *Engine) fromCache(relativeName string) *pongo2.Template {
+	p.mu.Lock()
+
+	tmpl, ok := p.templateCache[relativeName]
+
+	if ok {
+		p.mu.Unlock() // defer is slow
+		return tmpl
 	}
-	// Retrieve a buffer from the pool to write to.
-	out := buffer.Get()
-
-	err = tmpl.ExecuteWriter(getPongoContext(binding), out)
-
-	if err != nil {
-		buffer.Put(out)
-		return err
-	}
-	w := ctx.GetRequestCtx().Response.BodyWriter()
-	out.WriteTo(w)
-
-	// Return the buffer to the pool.
-	buffer.Put(out)
+	p.mu.Unlock() // defer is slow
 	return nil
 }
 
+func (p *Engine) Execute(ctx context.IContext, name string, binding interface{}, layout string) error {
+
+	if tmpl := p.fromCache(name); tmpl != nil {
+		// Retrieve a buffer from the pool to write to.
+		out := buffer.Get()
+
+		err := tmpl.ExecuteWriter(getPongoContext(binding), out)
+
+		if err != nil {
+			buffer.Put(out)
+			return err
+		}
+		w := ctx.GetRequestCtx().Response.BodyWriter()
+		out.WriteTo(w)
+
+		// Return the buffer to the pool.
+		buffer.Put(out)
+		return nil
+	}
+
+	return fmt.Errorf("[IRIS TEMPLATES] Template with name %s doesn't exists in the dir %s", name, p.Config.Directory)
+}
+
 func (p *Engine) ExecuteGzip(ctx context.IContext, name string, binding interface{}, layout string) error {
-	tmpl, err := p.Templates.FromCache(name)
-	if err != nil {
-		return err
-	}
-	// Retrieve a buffer from the pool to write to.
-	out := gzip.NewWriter(ctx.GetRequestCtx().Response.BodyWriter())
-	err = tmpl.ExecuteWriter(getPongoContext(binding), out)
+	if tmpl := p.fromCache(name); tmpl != nil {
 
-	if err != nil {
-		return err
-	}
-	//out.Flush()
-	out.Close()
-	ctx.GetRequestCtx().Response.Header.Add("Content-Encoding", "gzip")
+		// Retrieve a buffer from the pool to write to.
+		out := gzip.NewWriter(ctx.GetRequestCtx().Response.BodyWriter())
+		err := tmpl.ExecuteWriter(getPongoContext(binding), out)
 
-	return nil
+		if err != nil {
+			return err
+		}
+		//out.Flush()
+		out.Close()
+		ctx.GetRequestCtx().Response.Header.Add("Content-Encoding", "gzip")
+		return nil
+	}
+	return fmt.Errorf("[IRIS TEMPLATES] Template with name %s doesn't exists in the dir %s", name, p.Config.Directory)
+
 }
