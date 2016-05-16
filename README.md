@@ -1,4 +1,4 @@
-<img width="32" src="http://kataras.github.io/iris/assets/56e4b048f1ee49764ddd78fe_iris_favicon.ico"> Iris
+Iris Web Framework
 ===========================
  [![Build Status](https://travis-ci.org/kataras/iris.svg?branch=master&style=flat-square)](https://travis-ci.org/kataras/iris)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kataras/iris?style=flat-square)](https://goreportcard.com/report/github.com/kataras/iris)
@@ -7,9 +7,9 @@
 [![License](https://img.shields.io/badge/license-BSD3-blue.svg?style=flat-square)](LICENSE)
 
 
-a modern, **community-driven** **web** application **framework** for **Go**. Comes with the [highest performance](#benchmarks) which ever achieved.
+Iris: Community-driven, mini web application framework for Go Programming Language. Comes with the [highest](#benchmarks) performance so far.
 
-**Easy to learn** while providing robust set of features for building **modern & shiny web applications**.
+**[Easy to learn](https://kataras.gitbooks.io/iris/content/)** while providing robust set of features for building **modern web applications**.
 
 <a href="https://www.gitbook.com/book/kataras/iris/details"><img align="left" width="185" src="https://raw.githubusercontent.com/kataras/iris/gh-pages/assets/book/cover_1.png"></a>
 
@@ -29,9 +29,7 @@ a modern, **community-driven** **web** application **framework** for **Go**. Com
 
 ```go
 // ./main.go
-import (
-    "github.com/kataras/iris"
-)
+import  "github.com/kataras/iris"
 
 func main() {
     iris.Config().Render.Template.Engine = iris.PongoEngine
@@ -73,38 +71,39 @@ func hi(ctx *iris.Context){
 *  **Zero allocations**: Iris generates zero garbage
 
 
------
+----
 
-# Getting started
+Install
+------------
+ The only requirement is Go 1.6
 
-1. Install `$ go get -u github.com/kataras/iris`
+`$ go get -u github.com/kataras/iris`
+
  >If you are connected to the Internet through China [click here](https://kataras.gitbooks.io/iris/content/install.html)
 
-2. Read the [Iris book](https://www.gitbook.com/book/kataras/iris/details)
+How to use
+------------
 
-3. Examples are [here](https://github.com/iris-contrib/examples)
+- Read the [book](https://www.gitbook.com/book/kataras/iris/details) or [wiki](https://github.com/kataras/iris/wiki)
 
-4. Post an [issue](https://github.com/kataras/iris/issues) or [idea](https://github.com/kataras/iris/issues)
+- Take a look at the [examples](https://github.com/iris-contrib/examples)
 
-5. Chat with the [Community](https://gitter.im/kataras/iris)
 
-# Community
 
-**Open debates**
+
+If you'd like to discuss this package, or ask questions about it, feel free to
+
+* Post an issue or  idea [here](https://github.com/kataras/iris/issues)
+* [Chat]( https://gitter.im/kataras/iris) with us
+
+Open debates
 
  - [E-book Cover - Which one you suggest?](https://github.com/kataras/iris/issues/67)
- - [Be able to append a Data object on the Context](https://github.com/kataras/iris/issues/72)
- - [Form Validation](https://github.com/kataras/iris/issues/84)
-
-**If you'd like to discuss this package, or ask questions about it, feel free to**
-
-* Post: https://github.com/kataras/iris/issues
-* Chat: https://gitter.im/kataras/iris
-
 
 
 
 # Benchmarks
+------------
 
 
 Benchmarks results taken [from external source](https://github.com/smallnest/go-web-framework-benchmark), created by [@smallnest](https://github.com/smallnest).
@@ -119,15 +118,8 @@ May 12 2016
 [click here to view detailed tables of different benchmarks](https://github.com/smallnest/go-web-framework-benchmark)
 
 
-### Q: What makes iris significantly faster?
-*    Follows the path of the extensible [fasthttp](https://github.com/valyala/fasthttp)
-*    Makes use of a part of the algorithm which the [FreeBSD](https://github.com/freebsd/freebsd) uses
-*    Detects what features are used and what don't and optimize itself
-*    ...
-*    ...
-
-# Versioning
-Compatible only with go1.6+
+Versioning
+------------
 
 Current: **v3.0.0-alpha.3**
 
@@ -139,7 +131,8 @@ Read more about Semantic Versioning 2.0.0
  - https://wiki.debian.org/UpstreamGuide#Releases_and_Versions
 
 
-# Third party packages
+Third party packages
+------------
 
 - [Iris is build on top of fasthttp](https://github.com/valyala/fasthttp)
 - [pongo2 as one of the build'n template engines](https://github.com/flosch/pongo2)
@@ -147,35 +140,35 @@ Read more about Semantic Versioning 2.0.0
 - [formam as form binder](https://github.com/monoculum/formam)
 - [i18n for internalization](https://github.com/Unknwon/i18n)
 
-# Contributors
+Contributors
+------------
 
 Thanks goes to the people who have contributed code to this package, see the
 
-- [Iris GitHub Contributors page](https://github.com/kataras/iris/graphs/contributors).
-- [Iris Contrib GitHub Contributors page](https://github.com/orgs/iris-contrib/people).
+- [GitHub Contributors page](https://github.com/kataras/iris/graphs/contributors).
 
 
-# Todo
+Todo
+------------
 > for the next release 'v3'
 
 - [ ] Implement a middleware or plugin for easy & secure user authentication, stored in (no)database redis/mysql and make use of [sessions](https://github.com/kataras/iris/tree/master/sessions).
 - [ ] Create server & client side (js) library for .on('event', func action(...)) / .emit('event')... (like socket.io but supports only [websocket](https://github.com/kataras/iris/tree/master/websocket)).
-- [ ] Find and provide support for the most stable template engine and be able to change it via the IrisConfig, keep html/templates  support.
+- [x] Find and provide support for the most stable template engine and be able to change it via the configuration, keep html/templates  support.
 - [ ] Extend, test and publish to the public the Iris' cmd.
 
 
-# Donations
 
-I am a student at the [University of Central Macedonia](http://teiser.gr/index.php?lang=en).emit
-I spend all my time in the construction of Iris Web Framework, therefore I have no income value.
+I am a student at the [University of Central Macedonia](http://teiser.gr/index.php?lang=en).
+I spend all my time in the construction of Iris, therefore I have no income value.
 
-If you think that any information you obtained here is worth something and you are willing to pay for it, feel free to send any amount through paypal.
+If you think that any information you obtained here is worth some money, feel free to send any amount through paypal, thanks.
 
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=makis%40ideopod%2ecom&lc=GR&item_name=Iris%20web%20framework&item_number=iriswebframeworkdonationid2016&amount=2%2e00&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
 
 
-# License
+License
+------------
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 License can be found [here](https://github.com/kataras/iris/blob/master/LICENSE).
-
