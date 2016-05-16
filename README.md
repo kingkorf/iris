@@ -102,7 +102,7 @@ Open debates
 
 
 
-# Benchmarks
+Benchmarks
 ------------
 
 
