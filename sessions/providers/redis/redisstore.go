@@ -103,7 +103,9 @@ func (s *Store) Get(key interface{}) interface{} {
 // GetString same as Get but returns as string, if nil then returns an empty string
 func (s *Store) GetString(key interface{}) string {
 	if value := s.Get(key); value != nil {
-		return value.(string)
+		if v, ok := value.(string); ok {
+			return v
+		}
 	}
 
 	return ""
@@ -112,7 +114,9 @@ func (s *Store) GetString(key interface{}) string {
 // GetInt same as Get but returns as int, if nil then returns -1
 func (s *Store) GetInt(key interface{}) int {
 	if value := s.Get(key); value != nil {
-		return value.(int)
+		if v, ok := value.(int); ok {
+			return v
+		}
 	}
 
 	return -1
