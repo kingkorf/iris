@@ -136,7 +136,7 @@ func (ctx *Context) Do() {
 func (ctx *Context) Next() {
 	//set position to the next
 	ctx.pos++
-	midLen := uint8(len(ctx.middleware)) // max 255 handlers, we don't except more than these logically ...
+	midLen := uint8(len(ctx.middleware))
 	//run the next
 	if ctx.pos < midLen {
 		ctx.middleware[ctx.pos].Serve(ctx)

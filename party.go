@@ -227,11 +227,15 @@ func (p *GardenParty) StaticHandlerFunc(systemPath string, stripSlashes int, com
 	return func(ctx *Context) {
 		h(ctx.RequestCtx)
 		errCode := ctx.RequestCtx.Response.StatusCode()
-		ctx.RequestCtx.Response.ResetBody()
 
-		ctx.EmitError(errCode)
+		if errHandler := ctx.station.router.GetByCode(errCode); errHandler != nil {
+			ctx.RequestCtx.Response.ResetBody()
+			ctx.EmitError(errCode)
+		}
+		if ctx.pos < uint8(len(ctx.middleware))-1 {
+			ctx.Next() // for any case
+		}
 
-		ctx.Next() // for any case
 	}
 }
 
@@ -253,7 +257,7 @@ func (p *GardenParty) Static(relative string, systemPath string, stripSlashes in
 	h := p.StaticHandlerFunc(systemPath, stripSlashes, false, false)
 
 	p.Get(relative+"*filepath", h)
-	p.Head(relative+"*filepath", h)
+	//p.Head(relative+"*filepath", h)
 }
 
 // StaticFS registers a route which serves a system directory
@@ -274,7 +278,7 @@ func (p *GardenParty) StaticFS(relative string, systemPath string, stripSlashes 
 
 	h := p.StaticHandlerFunc(systemPath, stripSlashes, true, true)
 	p.Get(relative+"*filepath", h)
-	p.Head(relative+"*filepath", h)
+	//p.Head(relative+"*filepath", h)
 }
 
 // StaticWeb same as Static but if index.html exists and request uri is '/' then display the index.html's contents
@@ -300,7 +304,7 @@ func (p *GardenParty) StaticWeb(relative string, systemPath string, stripSlashes
 
 	}
 	p.Get(relative+"*filepath", indexHandler, serveHandler)
-	p.Head(relative+"*filepath", indexHandler, serveHandler)
+	//p.Head(relative+"*filepath", indexHandler, serveHandler)
 }
 
 // Party is just a group joiner of routes which have the same prefix and share same middleware(s) also.
