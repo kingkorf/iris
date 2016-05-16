@@ -49,10 +49,7 @@ type (
 		// contains common configs for both HTMLTemplate & Pongo
 		Engine EngineType
 		Gzip   bool
-		// Minify minifies the html result,
-		// Note: the minifier will not work if you aleady did your minification via Asset(string) ([]byte,error)
-		// Default is true
-		Minify        bool
+
 		IsDevelopment bool
 		Directory     string
 		Extensions    []string
@@ -67,6 +64,10 @@ type (
 	}
 
 	HTMLTemplate struct {
+		// Minify minifies the html result,
+		// Note: the minifier will not work if you aleady did your minification via Asset(string) ([]byte,error)
+		// Default is true
+		Minify          bool
 		RequirePartials bool
 		// Delims
 		Left  string
@@ -122,14 +123,13 @@ func DefaultTemplate() Template {
 	return Template{
 		Engine:        DefaultEngine, //or HTMLTemplate
 		Gzip:          false,
-		Minify:        true,
 		IsDevelopment: false,
 		Directory:     "templates",
 		Extensions:    []string{".html"},
 		ContentType:   "text/html",
 		Charset:       "UTF-8",
 		Layout:        "", // currently this is the only config which not working for pongo2 yet but I will find a way
-		HTMLTemplate:  HTMLTemplate{Left: "{{", Right: "}}", Funcs: make([]template.FuncMap, 0)},
+		HTMLTemplate:  HTMLTemplate{Minify: true, Left: "{{", Right: "}}", Funcs: make([]template.FuncMap, 0)},
 		Pongo:         Pongo{Filters: make(map[string]pongo2.FilterFunction, 0)},
 	}
 }
