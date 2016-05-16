@@ -53,11 +53,11 @@ func (p *Engine) BuildTemplates() error {
 
 }
 
-func (p *Engine) buildFromDir() error {
+func (p *Engine) buildFromDir() (templateErr error) {
 	if p.Config.Directory == "" {
 		return nil //we don't return fill error here(yet)
 	}
-	var templateErr error
+
 	dir := p.Config.Directory
 	fsLoader, err := pongo2.NewLocalFileSystemLoader(dir) // I see that this doesn't read the content if already parsed, so do it manually via filepath.Walk
 	if err != nil {
@@ -65,7 +65,6 @@ func (p *Engine) buildFromDir() error {
 	}
 
 	p.Templates = pongo2.NewSet("", fsLoader)
-
 	// Walk the supplied directory and compile any files that match our extension list.
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		// Fix same-extension-dirs bug: some dir might be named to: "users.tmpl", "local.html".
@@ -103,11 +102,10 @@ func (p *Engine) buildFromDir() error {
 					// HERE PONGO2 UNMINIFIES THE MINIFIED STRING BYTES FOR TOKENIZE, THEN THE MINIFIER CAN'T WORK WITH PONGO, this is sad.
 					_, err = p.Templates.FromString(string(buf))
 				*/
-				_, err := p.Templates.FromFile(rel) // use Relative, no from path because it calculates the basedir of the fsLoader: /templates/templates/index.html
-				//if that doesn't works then do tmpl, err..; p.Templates = tmpl
-				if err != nil {
-					templateErr = err
-					break
+
+				_, templateErr = p.Templates.FromCache(rel) // use Relative, no from path because it calculates the basedir of the fsLoader
+				if templateErr != nil {
+					return templateErr // break the file walk(;)
 				}
 				break
 			}
@@ -115,7 +113,7 @@ func (p *Engine) buildFromDir() error {
 		return nil
 	})
 
-	return templateErr
+	return
 }
 
 func (p *Engine) buildFromAsset() error {
