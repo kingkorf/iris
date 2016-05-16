@@ -154,8 +154,45 @@ func Any(path string, handlersFn ...HandlerFunc) {
 }
 
 // StaticHandlerFunc returns a HandlerFunc to serve static system directory
-func StaticHandlerFunc(systemPath string, stripSlashes int, compress bool, generateIndexPages bool) HandlerFunc {
-	return DefaultIris.StaticHandlerFunc(systemPath, stripSlashes, compress, generateIndexPages)
+// Accepts 5 parameters
+//
+// first is the systemPath (string)
+// Path to the root directory to serve files from.
+//
+// second is the  stripSlashes (int) level
+// * stripSlashes = 0, original path: "/foo/bar", result: "/foo/bar"
+// * stripSlashes = 1, original path: "/foo/bar", result: "/bar"
+// * stripSlashes = 2, original path: "/foo/bar", result: ""
+//
+// third is the compress (bool)
+// Transparently compresses responses if set to true.
+//
+// The server tries minimizing CPU usage by caching compressed files.
+// It adds FSCompressedFileSuffix suffix to the original file name and
+// tries saving the resulting compressed file under the new file name.
+// So it is advisable to give the server write access to Root
+// and to all inner folders in order to minimze CPU usage when serving
+// compressed responses.
+//
+// fourth is the generateIndexPages (bool)
+// Index pages for directories without files matching IndexNames
+// are automatically generated if set.
+//
+// Directory index generation may be quite slow for directories
+// with many files (more than 1K), so it is discouraged enabling
+// index pages' generation for such directories.
+//
+// fifth is the indexNames ([]string)
+// List of index file names to try opening during directory access.
+//
+// For example:
+//
+//     * index.html
+//     * index.htm
+//     * my-super-index.xml
+//
+func StaticHandlerFunc(systemPath string, stripSlashes int, compress bool, generateIndexPages bool, indexNames []string) HandlerFunc {
+	return DefaultIris.StaticHandlerFunc(systemPath, stripSlashes, compress, generateIndexPages, indexNames)
 }
 
 // Static registers a route which serves a system directory

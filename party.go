@@ -206,11 +206,51 @@ func (p *GardenParty) UseFunc(handlersFn ...HandlerFunc) {
 }
 
 // StaticHandlerFunc returns a HandlerFunc to serve static system directory
-func (p *GardenParty) StaticHandlerFunc(systemPath string, stripSlashes int, compress bool, generateIndexPages bool) HandlerFunc {
+// Accepts 5 parameters
+//
+// first is the systemPath (string)
+// Path to the root directory to serve files from.
+//
+// second is the  stripSlashes (int) level
+// * stripSlashes = 0, original path: "/foo/bar", result: "/foo/bar"
+// * stripSlashes = 1, original path: "/foo/bar", result: "/bar"
+// * stripSlashes = 2, original path: "/foo/bar", result: ""
+//
+// third is the compress (bool)
+// Transparently compresses responses if set to true.
+//
+// The server tries minimizing CPU usage by caching compressed files.
+// It adds FSCompressedFileSuffix suffix to the original file name and
+// tries saving the resulting compressed file under the new file name.
+// So it is advisable to give the server write access to Root
+// and to all inner folders in order to minimze CPU usage when serving
+// compressed responses.
+//
+// fourth is the generateIndexPages (bool)
+// Index pages for directories without files matching IndexNames
+// are automatically generated if set.
+//
+// Directory index generation may be quite slow for directories
+// with many files (more than 1K), so it is discouraged enabling
+// index pages' generation for such directories.
+//
+// fifth is the indexNames ([]string)
+// List of index file names to try opening during directory access.
+//
+// For example:
+//
+//     * index.html
+//     * index.htm
+//     * my-super-index.xml
+//
+func (p *GardenParty) StaticHandlerFunc(systemPath string, stripSlashes int, compress bool, generateIndexPages bool, indexNames []string) HandlerFunc {
+	if indexNames == nil {
+		indexNames = []string{}
+	}
 	fs := &fasthttp.FS{
 		// Path to directory to serve.
-		Root: systemPath,
-
+		Root:       systemPath,
+		IndexNames: indexNames,
 		// Generate index pages if client requests directory contents.
 		GenerateIndexPages: generateIndexPages,
 
@@ -254,7 +294,7 @@ func (p *GardenParty) Static(relative string, systemPath string, stripSlashes in
 		relative += "/"
 	}
 
-	h := p.StaticHandlerFunc(systemPath, stripSlashes, false, false)
+	h := p.StaticHandlerFunc(systemPath, stripSlashes, false, false, nil)
 
 	p.Get(relative+"*filepath", h)
 	p.Head(relative+"*filepath", h)
@@ -276,7 +316,7 @@ func (p *GardenParty) StaticFS(relative string, systemPath string, stripSlashes 
 		relative += "/"
 	}
 
-	h := p.StaticHandlerFunc(systemPath, stripSlashes, true, true)
+	h := p.StaticHandlerFunc(systemPath, stripSlashes, true, true, nil)
 	p.Get(relative+"*filepath", h)
 	p.Head(relative+"*filepath", h)
 }
@@ -295,7 +335,7 @@ func (p *GardenParty) StaticWeb(relative string, systemPath string, stripSlashes
 	}
 
 	hasIndex := utils.Exists(systemPath + utils.PathSeparator + "index.html")
-	serveHandler := p.StaticHandlerFunc(systemPath, 1, false, !hasIndex) // if not index.html exists then generate index.html which shows the list of files
+	serveHandler := p.StaticHandlerFunc(systemPath, 1, false, !hasIndex, nil) // if not index.html exists then generate index.html which shows the list of files
 	indexHandler := func(ctx *Context) {
 		if len(ctx.Param("filepath")) < 2 && hasIndex {
 			ctx.Request.SetRequestURI("index.html")
