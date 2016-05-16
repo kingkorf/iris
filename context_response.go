@@ -21,6 +21,7 @@ func (ctx *Context) Redirect(urlToRedirect string, statusHeader ...int) {
 	}
 
 	ctx.RequestCtx.Redirect(urlToRedirect, httpStatus)
+	ctx.StopExecution()
 }
 
 // Error handling
