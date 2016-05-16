@@ -136,7 +136,7 @@ Third party packages
 ------------
 
 - [Iris is build on top of fasthttp](https://github.com/valyala/fasthttp)
-- [minify for minify the templates](github.com/tdewolff/minify)
+- [minify for minify the templates](https://github.com/tdewolff/minify)
 - [pongo2 as one of the build'n template engines](https://github.com/flosch/pongo2)
 - [mergo as for merge configs](https://github.com/imdario/mergo)
 - [formam as form binder](https://github.com/monoculum/formam)
