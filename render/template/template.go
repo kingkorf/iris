@@ -27,8 +27,7 @@ type (
 )
 
 // New creates and returns a Template instance which keeps the Template Engine and helps with render
-func New(cfg ...config.Template) *Template {
-	c := config.DefaultTemplate().Merge(cfg)
+func New(c config.Template) *Template {
 
 	var e Engine
 	// [ENGINE-2]
@@ -41,7 +40,7 @@ func New(cfg ...config.Template) *Template {
 		return nil
 	}
 
-	if err := e.BuildTemplates(); err != nil { // first build the templates, if error panic because this is called before server's run
+	if err := e.BuildTemplates(); err != nil { // first build the templates, if error then panic because this is called before server's run
 		panic(err)
 	}
 

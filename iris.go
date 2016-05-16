@@ -105,7 +105,6 @@ func (s *Iris) PostListen() {
 	s.rest = rest.New(s.config.Render.Rest)
 	// set the templates
 	s.templates = template.New(s.config.Render.Template)
-
 	// set the session manager if we have a provider
 	if s.config.Sessions.Provider != "" {
 		s.sessionManager = sessions.New(s.config.Sessions)

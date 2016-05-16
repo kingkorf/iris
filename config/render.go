@@ -47,8 +47,12 @@ type (
 
 	Template struct {
 		// contains common configs for both HTMLTemplate & Pongo
-		Engine        EngineType
-		Gzip          bool
+		Engine EngineType
+		Gzip   bool
+		// Minify minifies the html result,
+		// Note: the minifier will not work if you aleady did your minification via Asset(string) ([]byte,error)
+		// Default is true
+		Minify        bool
 		IsDevelopment bool
 		Directory     string
 		Extensions    []string
@@ -57,8 +61,9 @@ type (
 		Asset         func(name string) ([]byte, error)
 		AssetNames    func() []string
 		Layout        string
-		HTMLTemplate  HTMLTemplate // contains specific configs for  HTMLTemplate standard html/template
-		Pongo         Pongo        // contains specific configs for pongo2
+
+		HTMLTemplate HTMLTemplate // contains specific configs for  HTMLTemplate standard html/template
+		Pongo        Pongo        // contains specific configs for pongo2
 	}
 
 	HTMLTemplate struct {
@@ -117,6 +122,7 @@ func DefaultTemplate() Template {
 	return Template{
 		Engine:        DefaultEngine, //or HTMLTemplate
 		Gzip:          false,
+		Minify:        true,
 		IsDevelopment: false,
 		Directory:     "templates",
 		Extensions:    []string{".html"},

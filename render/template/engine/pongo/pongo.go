@@ -6,6 +6,7 @@ package pongo
 */
 import (
 	"compress/gzip"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,6 +15,8 @@ import (
 	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/context"
 	"github.com/kataras/iris/utils"
+	"github.com/tdewolff/minify"
+	htmlMinifier "github.com/tdewolff/minify/html"
 )
 
 var (
@@ -28,12 +31,10 @@ type (
 )
 
 // New creates and returns a Pongo template engine
-func New(cfg ...config.Template) *Engine {
+func New(c config.Template) *Engine {
 	if buffer == nil {
 		buffer = utils.NewBufferPool(64)
 	}
-
-	c := config.DefaultTemplate().Merge(cfg)
 
 	return &Engine{Config: &c}
 }
@@ -61,6 +62,12 @@ func (p *Engine) buildFromDir() error {
 	}
 
 	var templateErr error
+	var minifier *minify.M
+	if p.Config.Minify {
+		minifier = minify.New()
+		minifier.AddFunc("text/html", htmlMinifier.Minify)
+	}
+
 	dir := p.Config.Directory
 	fsLoader, err := pongo2.NewLocalFileSystemLoader(dir) // I see that this doesn't read the content if already parsed, so do it manually via filepath.Walk
 	if err != nil {
@@ -91,8 +98,21 @@ func (p *Engine) buildFromDir() error {
 
 		for _, extension := range p.Config.Extensions {
 			if ext == extension {
+				buf, err := ioutil.ReadFile(path)
+				if err != nil {
+					templateErr = err
+					break
+				}
+				if p.Config.Minify {
+					buf, err = minifier.Bytes("text/html", buf)
+				}
+				if err != nil {
+					templateErr = err
+					break
+				}
 
-				_, err := p.Templates.FromFile(rel) // use Relative, no from path because it calculates the basedir of the fsLoader: /templates/templates/index.html
+				_, err = p.Templates.FromString(string(buf))
+				//just keep it in order to remember this: _, err := p.Templates.FromFile(rel) // use Relative, no from path because it calculates the basedir of the fsLoader: /templates/templates/index.html
 				//if that doesn't works then do tmpl, err..; p.Templates = tmpl
 				if err != nil {
 					templateErr = err

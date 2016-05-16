@@ -14,6 +14,8 @@ import (
 	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/context"
 	"github.com/kataras/iris/utils"
+	"github.com/tdewolff/minify"
+	htmlMinifier "github.com/tdewolff/minify/html"
 )
 
 var (
@@ -42,12 +44,10 @@ var emptyFuncs = template.FuncMap{
 }
 
 // New creates and returns a HTMLTemplate  engine
-func New(cfg ...config.Template) *Engine {
+func New(c config.Template) *Engine {
 	if buffer == nil {
 		buffer = utils.NewBufferPool(64)
 	}
-
-	c := config.DefaultTemplate().Merge(cfg)
 
 	return &Engine{Config: &c}
 }
@@ -72,6 +72,11 @@ func (s *Engine) buildFromDir() error {
 	}
 
 	var templateErr error
+	var minifier *minify.M
+	if s.Config.Minify {
+		minifier = minify.New()
+		minifier.AddFunc("text/html", htmlMinifier.Minify)
+	} // Note: I know that I have dublicates method between pongo and html but I made it because other template engines (in the future) already minify their templates*
 	dir := s.Config.Directory
 	s.Templates = template.New(dir)
 	s.Templates.Delims(s.Config.HTMLTemplate.Left, s.Config.HTMLTemplate.Right)
@@ -99,6 +104,10 @@ func (s *Engine) buildFromDir() error {
 		for _, extension := range s.Config.Extensions {
 			if ext == extension {
 				buf, err := ioutil.ReadFile(path)
+				if s.Config.Minify {
+					buf, err = minifier.Bytes("text/html", buf)
+				}
+
 				if err != nil {
 					templateErr = err
 					break

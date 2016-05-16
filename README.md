@@ -33,6 +33,7 @@ import  "github.com/kataras/iris"
 
 func main() {
     iris.Config().Render.Template.Engine = iris.PongoEngine
+	iris.Config().Render.Template.Minify = true // the default
 	iris.Get("/hi", hi)
 	iris.Listen(":8080")
 }
@@ -135,6 +136,7 @@ Third party packages
 ------------
 
 - [Iris is build on top of fasthttp](https://github.com/valyala/fasthttp)
+- [minify for minify the templates](github.com/tdewolff/minify)
 - [pongo2 as one of the build'n template engines](https://github.com/flosch/pongo2)
 - [mergo as for merge configs](https://github.com/imdario/mergo)
 - [formam as form binder](https://github.com/monoculum/formam)
