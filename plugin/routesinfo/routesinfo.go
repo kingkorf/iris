@@ -34,11 +34,6 @@ type Plugin struct {
 
 // implement the base IPlugin
 
-// Activate ...
-func (r *Plugin) Activate(container iris.IPluginContainer) error {
-	return nil
-}
-
 // GetName ...
 func (r Plugin) GetName() string {
 	return Name

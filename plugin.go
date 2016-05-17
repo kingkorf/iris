@@ -8,6 +8,10 @@ import (
 
 type (
 	// IPlugin just an empty base for plugins
+	// A Plugin can be added with: .Add(PreHandleFunc(func(IRoute))) or
+	// .Add(myPlugin{}) which myPlugin is  a struct with any of the methods below
+
+	// or catch events, On('PreHandle',func (IRoute))-> PreHandle method, On(iris.OnPostandle/'PostHandle', func(IRoute))-> PostHandle and so on
 	IPlugin interface {
 	}
 
@@ -42,6 +46,7 @@ type (
 		//  parameter is the Route
 		PreHandle(IRoute)
 	}
+	PreHandleFunc func(IRoute)
 	// IPluginPostHandle implements the PostHandle(IRoute) method
 	IPluginPostHandle interface {
 		// PostHandle it's being called every time AFTER a Route successfully registed to the Router
@@ -49,6 +54,7 @@ type (
 		// parameter is the Route
 		PostHandle(IRoute)
 	}
+	PostHandleFunc func(IRoute)
 	// IPluginPreListen implements the PreListen(*Iris) method
 	IPluginPreListen interface {
 		// PreListen it's being called only one time, BEFORE the Server is started (if .Listen called)
@@ -56,12 +62,14 @@ type (
 		//  parameter is the station
 		PreListen(*Iris)
 	}
+	PreListenFunc func(*Iris)
 	// IPluginPostListen implements the PostListen(*Iris) method
 	IPluginPostListen interface {
 		// PostListen it's being called only one time, AFTER the Server is started (if .Listen called)
 		// parameter is the station
 		PostListen(*Iris)
 	}
+	PostListenFunc func(*Iris)
 	// IPluginPreClose implements the PreClose(*Iris) method
 	IPluginPreClose interface {
 		// PreClose it's being called only one time, BEFORE the Iris .Close method
@@ -70,6 +78,7 @@ type (
 		// The plugin is deactivated after this state
 		PreClose(*Iris)
 	}
+	PreCloseFunc func(*Iris)
 
 	// IPluginPreDownload It's for the future, not being used, I need to create
 	// and return an ActivatedPlugin type which will have it's methods, and pass it on .Activate
@@ -83,6 +92,7 @@ type (
 		// must return a boolean, if false then the plugin is not permmited to download this file
 		PreDownload(plugin IPlugin, downloadURL string) // bool
 	}
+	PreDownloadFunc func(IPlugin, string)
 
 	// IPluginContainer is the interface which the PluginContainer should implements
 	IPluginContainer interface {
@@ -125,6 +135,34 @@ type (
 	DownloadManager struct {
 	}
 )
+
+// convert the functions to IPlugin
+
+func (fn PreHandleFunc) PreHandle(route IRoute) {
+	fn(route)
+}
+
+func (fn PostHandleFunc) PostHandle(route IRoute) {
+	fn(route)
+}
+
+func (fn PreListenFunc) PreListen(station *Iris) {
+	fn(station)
+}
+
+func (fn PostListenFunc) PostListen(station *Iris) {
+	fn(station)
+}
+
+func (fn PreCloseFunc) PreClose(station *Iris) {
+	fn(station)
+}
+
+func (fn PreDownloadFunc) PreDownload(pl IPlugin, downloadURL string) {
+	fn(pl, downloadURL)
+}
+
+//
 
 var _ IDownloadManager = &DownloadManager{}
 var _ IPluginContainer = &PluginContainer{}
