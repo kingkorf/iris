@@ -15,12 +15,7 @@ A Community-driven, mini web application framework for Go Programming Language. 
 
 ```html
 <!-- ./templates/hi.html -->
-<html><head> <title> Hi</title> </head>
-  <body>
-    <h1> Hi {{ .Name }}
-  </body>
-</html>
-
+<h1> Hi {{ .Name }} </h1>
 ```
 
 ```go
@@ -34,7 +29,7 @@ func main() {
 	})
 
 	iris.Get("/hi_markdown", func(ctx *iris.Context){
-	   ctx.Markdown(iris.StatusOK, "## Hi Iris")
+	   ctx.Markdown(iris.StatusOK, "# Hi Iris")
 	})
 
 	iris.Listen(":8080")
