@@ -8,10 +8,9 @@ import (
 
 type (
 	// IPlugin just an empty base for plugins
-	// A Plugin can be added with: .Add(PreHandleFunc(func(IRoute))) or
-	// .Add(myPlugin{}) which myPlugin is  a struct with any of the methods below
-
-	// or catch events, On('PreHandle',func (IRoute))-> PreHandle method, On(iris.OnPostandle/'PostHandle', func(IRoute))-> PostHandle and so on
+	// A Plugin can be added with: .Add(PreHandleFunc(func(IRoute))) and so on... or
+	// .Add(myPlugin{}) which myPlugin is  a struct with any of the methods below or
+	// .PreHandle(PreHandleFunc), .PostHandle(func(IRoute)) and so on...
 	IPlugin interface {
 	}
 
@@ -304,6 +303,11 @@ func (p *PluginContainer) Printf(format string, a ...interface{}) {
 	fmt.Printf(format, a...) //for now just this.
 }
 
+// PreHandle adds a PreHandle plugin-function to the plugin flow container
+func (p *PluginContainer) PreHandle(fn PreHandleFunc) {
+	p.Add(fn)
+}
+
 // DoPreHandle raise all plugins which has the PreHandle method
 func (p *PluginContainer) DoPreHandle(route IRoute) {
 	for i := range p.activatedPlugins {
@@ -312,6 +316,11 @@ func (p *PluginContainer) DoPreHandle(route IRoute) {
 			pluginObj.PreHandle(route)
 		}
 	}
+}
+
+// PostHandle adds a PostHandle plugin-function to the plugin flow container
+func (p *PluginContainer) PostHandle(fn PostHandleFunc) {
+	p.Add(fn)
 }
 
 // DoPostHandle raise all plugins which has the DoPostHandle method
@@ -324,6 +333,11 @@ func (p *PluginContainer) DoPostHandle(route IRoute) {
 	}
 }
 
+// PreListen adds a PreListen plugin-function to the plugin flow container
+func (p *PluginContainer) PreListen(fn PreListenFunc) {
+	p.Add(fn)
+}
+
 // DoPreListen raise all plugins which has the DoPreListen method
 func (p *PluginContainer) DoPreListen(station *Iris) {
 	for i := range p.activatedPlugins {
@@ -332,6 +346,11 @@ func (p *PluginContainer) DoPreListen(station *Iris) {
 			pluginObj.PreListen(station)
 		}
 	}
+}
+
+// PostListen adds a PostListen plugin-function to the plugin flow container
+func (p *PluginContainer) PostListen(fn PostListenFunc) {
+	p.Add(fn)
 }
 
 // DoPostListen raise all plugins which has the DoPostListen method
@@ -344,6 +363,11 @@ func (p *PluginContainer) DoPostListen(station *Iris) {
 	}
 }
 
+// PreClose adds a PreClose plugin-function to the plugin flow container
+func (p *PluginContainer) PreClose(fn PreCloseFunc) {
+	p.Add(fn)
+}
+
 // DoPreClose raise all plugins which has the DoPreClose method
 func (p *PluginContainer) DoPreClose(station *Iris) {
 	for i := range p.activatedPlugins {
@@ -352,6 +376,11 @@ func (p *PluginContainer) DoPreClose(station *Iris) {
 			pluginObj.PreClose(station)
 		}
 	}
+}
+
+// PreDownload adds a PreDownload plugin-function to the plugin flow container
+func (p *PluginContainer) PreDownload(fn PreDownloadFunc) {
+	p.Add(fn)
 }
 
 // DoPreDownload raise all plugins which has the DoPreDownload method
