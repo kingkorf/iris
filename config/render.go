@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	NoEngine    EngineType = -1
-	HTMLEngine  EngineType = 0
-	PongoEngine EngineType = 1
+	NoEngine       EngineType = -1
+	HTMLEngine     EngineType = 0
+	PongoEngine    EngineType = 1
+	MarkdownEngine EngineType = 2
 
 	DefaultEngine EngineType = HTMLEngine
 )
@@ -64,6 +65,8 @@ type (
 
 		HTMLTemplate HTMLTemplate // contains specific configs for  HTMLTemplate standard html/template
 		Pongo        Pongo        // contains specific configs for pongo2
+		// Markdown template engine it doesn't supports Layout & binding context
+		Markdown Markdown // contains specific configs for markdown
 	}
 
 	HTMLTemplate struct {
@@ -78,6 +81,10 @@ type (
 	Pongo struct {
 		// Filters for pongo2, map[name of the filter] the filter function . The filters are auto register
 		Filters map[string]pongo2.FilterFunction
+	}
+
+	Markdown struct {
+		Sanitize bool // if true then returns safe html, default is false
 	}
 )
 
@@ -131,6 +138,7 @@ func DefaultTemplate() Template {
 		Layout:        "", // currently this is the only config which not working for pongo2 yet but I will find a way
 		HTMLTemplate:  HTMLTemplate{Left: "{{", Right: "}}", Funcs: make([]template.FuncMap, 0)},
 		Pongo:         Pongo{Filters: make(map[string]pongo2.FilterFunction, 0)},
+		Markdown:      Markdown{Sanitize: false},
 	}
 }
 
