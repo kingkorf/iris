@@ -70,6 +70,14 @@ func (s *Iris) newContextPool() sync.Pool {
 	}}
 }
 
+func (s *Iris) initTemplates() {
+	if s.templates == nil { // because if .Templates() called before server's listen, s.templates != nil
+		//  init the templates
+		s.templates = template.New(s.config.Render.Template)
+	}
+
+}
+
 // PreListen call router's optimize, sets the server's handler and notice the plugins
 // capital because we need it sometimes, for example inside the graceful
 // receives the config.Server
@@ -104,7 +112,7 @@ func (s *Iris) PostListen() {
 	//set the  rest (for Data, Text, JSON, JSONP, XML)
 	s.rest = rest.New(s.config.Render.Rest)
 	// set the templates
-	s.templates = template.New(s.config.Render.Template)
+	s.initTemplates()
 	// set the session manager if we have a provider
 	if s.config.Sessions.Provider != "" {
 		s.sessionManager = sessions.New(s.config.Sessions)
@@ -220,5 +228,6 @@ func (s *Iris) Rest() *rest.Render {
 
 // Templates returns the template render
 func (s *Iris) Templates() *template.Template {
+	s.initTemplates() // for any case the user called .Templates() before server's listen
 	return s.templates
 }

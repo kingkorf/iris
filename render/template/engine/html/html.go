@@ -2,7 +2,6 @@ package html
 
 import (
 	"bytes"
-	"compress/gzip"
 	"fmt"
 	"html/template"
 	"io"
@@ -12,14 +11,8 @@ import (
 	"strings"
 
 	"github.com/kataras/iris/config"
-	"github.com/kataras/iris/context"
-	"github.com/kataras/iris/utils"
 	"github.com/tdewolff/minify"
 	htmlMinifier "github.com/tdewolff/minify/html"
-)
-
-var (
-	buffer *utils.BufferPool
 )
 
 type (
@@ -45,10 +38,6 @@ var emptyFuncs = template.FuncMap{
 
 // New creates and returns a HTMLTemplate  engine
 func New(c config.Template) *Engine {
-	if buffer == nil {
-		buffer = utils.NewBufferPool(64)
-	}
-
 	return &Engine{Config: &c}
 }
 
@@ -212,40 +201,10 @@ func (s *Engine) layoutFuncsFor(name string, binding interface{}) {
 	}
 }
 
-func (s *Engine) executeTemplate(out io.Writer, name string, binding interface{}, layout string) error {
-
+func (s *Engine) ExecuteWriter(out io.Writer, name string, binding interface{}, layout string) error {
 	if layout != "" {
 		s.layoutFuncsFor(name, binding)
 		name = layout
 	}
-
 	return s.Templates.ExecuteTemplate(out, name, binding)
-}
-
-func (s *Engine) Execute(ctx context.IContext, name string, binding interface{}, layout string) error {
-	// Retrieve a buffer from the pool to write to.
-	out := buffer.Get()
-	if err := s.executeTemplate(out, name, binding, layout); err != nil {
-		buffer.Put(out)
-		return err
-	}
-	w := ctx.GetRequestCtx().Response.BodyWriter()
-	out.WriteTo(w)
-
-	// Return the buffer to the pool.
-	buffer.Put(out)
-	return nil
-}
-
-func (s *Engine) ExecuteGzip(ctx context.IContext, name string, binding interface{}, layout string) error {
-	// Retrieve a buffer from the pool to write to.
-	out := gzip.NewWriter(ctx.GetRequestCtx().Response.BodyWriter())
-
-	if err := s.executeTemplate(out, name, binding, layout); err != nil {
-		return err
-	}
-	//out.Flush()
-	out.Close()
-	ctx.GetRequestCtx().Response.Header.Add("Content-Encoding", "gzip")
-	return nil
 }

@@ -5,26 +5,19 @@ package pongo
 
 */
 import (
-	"compress/gzip"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-
 	"sync"
 
 	"fmt"
 
 	"github.com/flosch/pongo2"
 	"github.com/kataras/iris/config"
-	"github.com/kataras/iris/context"
-	"github.com/kataras/iris/utils"
 	"github.com/tdewolff/minify"
 	htmlMinifier "github.com/tdewolff/minify/html"
-)
-
-var (
-	buffer *utils.BufferPool
 )
 
 type (
@@ -37,9 +30,6 @@ type (
 
 // New creates and returns a Pongo template engine
 func New(c config.Template) *Engine {
-	if buffer == nil {
-		buffer = utils.NewBufferPool(64)
-	}
 	return &Engine{Config: &c, templateCache: make(map[string]*pongo2.Template)}
 }
 
@@ -201,44 +191,11 @@ func (p *Engine) fromCache(relativeName string) *pongo2.Template {
 	return nil
 }
 
-func (p *Engine) Execute(ctx context.IContext, name string, binding interface{}, layout string) error {
-
+// layout here is unnesecery
+func (p *Engine) ExecuteWriter(out io.Writer, name string, binding interface{}, layout string) error {
 	if tmpl := p.fromCache(name); tmpl != nil {
-		// Retrieve a buffer from the pool to write to.
-		out := buffer.Get()
-
-		err := tmpl.ExecuteWriter(getPongoContext(binding), out)
-
-		if err != nil {
-			buffer.Put(out)
-			return err
-		}
-		w := ctx.GetRequestCtx().Response.BodyWriter()
-		out.WriteTo(w)
-
-		// Return the buffer to the pool.
-		buffer.Put(out)
-		return nil
+		return tmpl.ExecuteWriter(getPongoContext(binding), out)
 	}
 
 	return fmt.Errorf("[IRIS TEMPLATES] Template with name %s doesn't exists in the dir %s", name, p.Config.Directory)
-}
-
-func (p *Engine) ExecuteGzip(ctx context.IContext, name string, binding interface{}, layout string) error {
-	if tmpl := p.fromCache(name); tmpl != nil {
-
-		// Retrieve a buffer from the pool to write to.
-		out := gzip.NewWriter(ctx.GetRequestCtx().Response.BodyWriter())
-		err := tmpl.ExecuteWriter(getPongoContext(binding), out)
-
-		if err != nil {
-			return err
-		}
-		//out.Flush()
-		out.Close()
-		ctx.GetRequestCtx().Response.Header.Add("Content-Encoding", "gzip")
-		return nil
-	}
-	return fmt.Errorf("[IRIS TEMPLATES] Template with name %s doesn't exists in the dir %s", name, p.Config.Directory)
-
 }

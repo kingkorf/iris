@@ -1,5 +1,22 @@
 # History
 
+## 3.0.0-alpha.3 -> 3.0.0-alpha.4
+
+Community suggestions implemented:
+
+- [Request: Rendering html template to string](https://github.com/kataras/iris/issues/130)
+	> New RenderString(name string, binding interface{}, layout ...string) added to the Context & the Iris' station (iris.Templates().RenderString)
+- [Minify Templates](https://github.com/kataras/iris/issues/129)
+	> New config field for minify, defaulted to true: iris.Config().Render.Template.Minify  = true
+
+
+
+Bugfixes and enhancements :
+
+- [Static not allowing configuration of `IndexNames`](https://github.com/kataras/iris/issues/128)
+- [Processing access error](https://github.com/kataras/iris/issues/125)
+- [Invalid header](https://github.com/kataras/iris/issues/123)
+
 ## 3.0.0-alpha.2 -> 3.0.0-alpha.3
 
 The only change here is a panic-fix on form bindings. Now **no need to make([]string,0)** before form binding, new example:
