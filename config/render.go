@@ -45,6 +45,8 @@ type (
 		StreamingJSON bool
 		// Disables automatic rendering of http.StatusInternalServerError when an error occurs. Default is false.
 		DisableHTTPErrorRendering bool
+		// MarkdownSanitize sanitizes the markdown. Default is false.
+		MarkdownSanitize bool
 	}
 
 	EngineType int8
@@ -102,6 +104,7 @@ func DefaultRest() Rest {
 		UnEscapeHTML:              false,
 		StreamingJSON:             false,
 		DisableHTTPErrorRendering: false,
+		MarkdownSanitize:          false,
 	}
 }
 

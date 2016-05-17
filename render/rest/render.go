@@ -3,6 +3,8 @@ package rest
 import (
 	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/utils"
+	"github.com/microcosm-cc/bluemonday"
+	"github.com/russross/blackfriday"
 	"github.com/valyala/fasthttp"
 )
 
@@ -151,4 +153,20 @@ func (r *Render) XML(ctx *fasthttp.RequestCtx, status int, v interface{}) error 
 	}
 
 	return r.Render(ctx, x, v)
+}
+
+// Markdown parses and  returns the converted html from a markdown []byte
+// accepts two parameters
+// first is the http status code
+// second is the markdown string
+//
+// Note that: Works different than the other rest's functions.
+func (r *Render) Markdown(markdownBytes []byte) string {
+	buf := blackfriday.MarkdownCommon(markdownBytes)
+	if r.Config.MarkdownSanitize {
+		buf = bluemonday.UGCPolicy().SanitizeBytes(buf)
+	}
+
+	return string(buf)
+
 }

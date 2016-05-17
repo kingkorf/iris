@@ -67,6 +67,19 @@ func (ctx *Context) XML(status int, v interface{}) error {
 	return ctx.station.rest.XML(ctx.RequestCtx, status, v)
 }
 
+// MarkdownString parses the (dynamic) markdown string and returns the converted html string
+func (ctx *Context) MarkdownString(markdown string) string {
+	return ctx.station.rest.Markdown([]byte(markdown))
+}
+
+// Markdown parses and renders to the client a particular (dynamic) markdown string
+// accepts two parameters
+// first is the http status code
+// second is the markdown string
+func (ctx *Context) Markdown(status int, markdown string) {
+	ctx.WriteHTML(status, ctx.MarkdownString(markdown))
+}
+
 // ExecuteTemplate executes a simple html template, you can use that if you already have the cached templates
 // the recommended way to render is to use iris.Templates("./templates/path/*.html") and ctx.RenderFile("filename.html",struct{})
 // accepts 2 parameters

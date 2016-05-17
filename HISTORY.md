@@ -1,5 +1,12 @@
 # History
 
+## 3.0.0-alpha.4 -> 3.0.0-alpha.5
+
+- [NoLayout support for particular templates](https://github.com/kataras/iris/issues/130#issuecomment-219754335)
+- [Raw Markdown Template Engine](https://kataras.gitbooks.io/iris/content/render_templates.html)
+- [Markdown to HTML](https://kataras.gitbooks.io/iris/content/render_rest.html) > `context.Markdown(statusCode int, markdown string)` , `context.MarkdownString(markdown string) (htmlReturn string)`
+- [Simplify the plugin registration](https://github.com/kataras/iris/issues/126#issuecomment-219622481)
+
 ## 3.0.0-alpha.3 -> 3.0.0-alpha.4
 
 Community suggestions implemented:

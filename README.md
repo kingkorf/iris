@@ -123,7 +123,7 @@ May 12 2016
 Versioning
 ------------
 
-Current: **v3.0.0-alpha.4**
+Current: **v3.0.0-alpha.5**
 
 
 Read more about Semantic Versioning 2.0.0

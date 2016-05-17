@@ -17,6 +17,7 @@ import (
 	htmlMinifier "github.com/tdewolff/minify/html"
 )
 
+// Supports RAW markdown only, no context binding or layout, to use dynamic markdown with other template engine use the context.Markdown/MarkdownString
 type (
 	Engine struct {
 		Config        *config.Template
