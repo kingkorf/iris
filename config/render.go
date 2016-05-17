@@ -14,6 +14,9 @@ const (
 	MarkdownEngine EngineType = 2
 
 	DefaultEngine EngineType = HTMLEngine
+
+	// to disable layout for a particular file
+	NoLayout = "@.|.@iris_no_layout@.|.@"
 )
 
 var (

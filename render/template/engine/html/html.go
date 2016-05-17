@@ -202,7 +202,7 @@ func (s *Engine) layoutFuncsFor(name string, binding interface{}) {
 }
 
 func (s *Engine) ExecuteWriter(out io.Writer, name string, binding interface{}, layout string) error {
-	if layout != "" {
+	if layout != "" && layout != config.NoLayout {
 		s.layoutFuncsFor(name, binding)
 		name = layout
 	}

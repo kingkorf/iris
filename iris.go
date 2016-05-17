@@ -28,6 +28,9 @@ var (
 	PongoEngine   = config.PongoEngine
 	DefaultEngine = config.DefaultEngine
 	NoEngine      = config.NoEngine
+	//
+
+	NoLayout = config.NoLayout
 )
 
 type (
