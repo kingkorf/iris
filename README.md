@@ -105,9 +105,8 @@ Third party packages
 ------------
 
 - [Iris is build on top of fasthttp](https://github.com/valyala/fasthttp)
-- [minify for minification the HTMLTemplate's result](https://github.com/tdewolff/minify)
 - [pongo2 as one of the build'n template engines](https://github.com/flosch/pongo2)
-- [blackfriday markdown as one of the build'n template engines](github.com/russross/blackfriday)
+- [blackfriday markdown as one of the build'n template engines](https://github.com/russross/blackfriday)
 - [mergo for merge configs](https://github.com/imdario/mergo)
 - [formam as form binder](https://github.com/monoculum/formam)
 - [i18n for internalization](https://github.com/Unknwon/i18n)

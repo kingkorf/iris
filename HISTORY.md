@@ -15,6 +15,7 @@ Community suggestions implemented:
 	> New RenderString(name string, binding interface{}, layout ...string) added to the Context & the Iris' station (iris.Templates().RenderString)
 - [Minify Templates](https://github.com/kataras/iris/issues/129)
 	> New config field for minify, defaulted to true: iris.Config().Render.Template.Minify  = true
+	> 3.0.0-alpha5+ this has been removed because the minify package has bugs, one of them is this: https://github.com/tdewolff/minify/issues/35.
 
 
 

@@ -56,9 +56,9 @@ type (
 		Engine EngineType
 		Gzip   bool
 		// Minify minifies the html result,
-		// Note: the minifier will not work if you aleady did your minification via Asset(string) ([]byte,error)
-		// Default is true
-		Minify        bool
+		// Note: according to this https://github.com/tdewolff/minify/issues/35, also it removes some </tags> when minify on writer, remove this from Iris until fix.
+		// Default is false
+		//Minify        bool
 		IsDevelopment bool
 		Directory     string
 		Extensions    []string
@@ -135,7 +135,6 @@ func DefaultTemplate() Template {
 	return Template{
 		Engine:        DefaultEngine, //or HTMLTemplate
 		Gzip:          false,
-		Minify:        true,
 		IsDevelopment: false,
 		Directory:     "templates",
 		Extensions:    []string{".html"},

@@ -20,8 +20,7 @@ type (
 	}
 
 	Template struct {
-		Engine Engine
-
+		Engine        Engine
 		IsDevelopment bool
 		Gzip          bool
 		ContentType   string
@@ -52,7 +51,7 @@ func New(c config.Template) *Template {
 
 	compiledContentType := c.ContentType + "; charset=" + c.Charset
 
-	return &Template{
+	t := &Template{
 		Engine:        e,
 		IsDevelopment: c.IsDevelopment,
 		Gzip:          c.Gzip,
@@ -60,6 +59,8 @@ func New(c config.Template) *Template {
 		Layout:        c.Layout,
 		buffer:        utils.NewBufferPool(64),
 	}
+
+	return t
 
 }
 
@@ -99,6 +100,17 @@ func (t *Template) Render(ctx context.IContext, name string, binding interface{}
 		out = ctx.GetRequestCtx().Response.BodyWriter()
 	}
 
+	//means Minify was true when the template engine created
+
+	/*Try2:
+	if t.minifier != nil {
+		// even this doesn't works, it removes some </tags>, sadly tdewolff/minify/html is buggy,I remove this from Iris. mw := t.minifier.Writer("text/html", out)
+		if err = mw.Close(); err == nil {
+			err = t.Engine.ExecuteWriter(mw, name, binding, _layout)
+		}
+	} else {
+		err = t.Engine.ExecuteWriter(out, name, binding, _layout)
+	}*/
 	err = t.Engine.ExecuteWriter(out, name, binding, _layout)
 
 	return

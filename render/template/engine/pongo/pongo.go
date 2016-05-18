@@ -16,8 +16,6 @@ import (
 
 	"github.com/flosch/pongo2"
 	"github.com/kataras/iris/config"
-	"github.com/tdewolff/minify"
-	htmlMinifier "github.com/tdewolff/minify/html"
 )
 
 type (
@@ -31,10 +29,6 @@ type (
 // New creates and returns a Pongo template engine
 func New(c config.Template) *Engine {
 	return &Engine{Config: &c, templateCache: make(map[string]*pongo2.Template)}
-}
-
-func (p *Engine) GetConfig() *config.Template {
-	return p.Config
 }
 
 func (p *Engine) BuildTemplates() error {
@@ -55,12 +49,6 @@ func (p *Engine) buildFromDir() (templateErr error) {
 		return nil //we don't return fill error here(yet)
 	}
 	dir := p.Config.Directory
-
-	var minifier *minify.M
-	if p.Config.Minify {
-		minifier = minify.New()
-		minifier.AddFunc("text/html", htmlMinifier.Minify)
-	}
 
 	fsLoader, err := pongo2.NewLocalFileSystemLoader(dir) // I see that this doesn't read the content if already parsed, so do it manually via filepath.Walk
 	if err != nil {
@@ -95,9 +83,6 @@ func (p *Engine) buildFromDir() (templateErr error) {
 				if err != nil {
 					templateErr = err
 					break
-				}
-				if p.Config.Minify {
-					buf, err = minifier.Bytes("text/html", buf)
 				}
 				if err != nil {
 					templateErr = err

@@ -13,8 +13,6 @@ import (
 	"github.com/kataras/iris/config"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday"
-	"github.com/tdewolff/minify"
-	htmlMinifier "github.com/tdewolff/minify/html"
 )
 
 // Supports RAW markdown only, no context binding or layout, to use dynamic markdown with other template engine use the context.Markdown/MarkdownString
@@ -31,10 +29,6 @@ func New(c config.Template) *Engine {
 	return &Engine{Config: &c, templateCache: make(map[string][]byte)}
 }
 
-func (e *Engine) GetConfig() *config.Template {
-	return e.Config
-}
-
 func (e *Engine) BuildTemplates() error {
 	if e.Config.Asset == nil || e.Config.AssetNames == nil {
 		return e.buildFromDir()
@@ -48,12 +42,6 @@ func (e *Engine) buildFromDir() (templateErr error) {
 		return nil //we don't return fill error here(yet)
 	}
 	dir := e.Config.Directory
-
-	var minifier *minify.M
-	if e.Config.Minify {
-		minifier = minify.New()
-		minifier.AddFunc("text/html", htmlMinifier.Minify)
-	}
 
 	// Walk the supplied directory and compile any files that match our extension list.
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
@@ -84,9 +72,7 @@ func (e *Engine) buildFromDir() (templateErr error) {
 				if e.Config.Markdown.Sanitize {
 					buf = bluemonday.UGCPolicy().SanitizeBytes(buf)
 				}
-				if e.Config.Minify {
-					buf, err = minifier.Bytes("text/html", buf)
-				}
+
 				if err != nil {
 					templateErr = err
 					break

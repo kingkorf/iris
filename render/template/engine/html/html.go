@@ -11,8 +11,6 @@ import (
 	"strings"
 
 	"github.com/kataras/iris/config"
-	"github.com/tdewolff/minify"
-	htmlMinifier "github.com/tdewolff/minify/html"
 )
 
 type (
@@ -36,13 +34,9 @@ var emptyFuncs = template.FuncMap{
 	},
 }
 
-// New creates and returns a HTMLTemplate  engine
+// New creates and returns the HTMLTemplate template engine
 func New(c config.Template) *Engine {
 	return &Engine{Config: &c}
-}
-
-func (s *Engine) GetConfig() *config.Template {
-	return s.Config
 }
 
 func (s *Engine) BuildTemplates() error {
@@ -61,21 +55,18 @@ func (s *Engine) buildFromDir() error {
 	}
 
 	var templateErr error
-	var minifier *minify.M
+	/*var minifier *minify.M
 	if s.Config.Minify {
 		minifier = minify.New()
 		minifier.AddFunc("text/html", htmlMinifier.Minify)
-	} // Note: I know that I have dublicates method between pongo and html but I made it because other template engines (in the future) already minify their templates*
+	} // Note: minifier has bugs, I complety remove this from Iris.
+	*/
 	dir := s.Config.Directory
 	s.Templates = template.New(dir)
 	s.Templates.Delims(s.Config.HTMLTemplate.Left, s.Config.HTMLTemplate.Right)
 
 	// Walk the supplied directory and compile any files that match our extension list.
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		// Fix same-extension-dirs bug: some dir might be named to: "users.tmpl", "local.html".
-		// These dirs should be excluded as they are not valid golang templates, but files under
-		// them should be treat as normal.
-		// If is a dir, return immediately (dir is not a valid golang template).
 		if info == nil || info.IsDir() {
 			return nil
 		}
@@ -93,9 +84,9 @@ func (s *Engine) buildFromDir() error {
 		for _, extension := range s.Config.Extensions {
 			if ext == extension {
 				buf, err := ioutil.ReadFile(path)
-				if s.Config.Minify {
+				/*if s.Config.Minify {
 					buf, err = minifier.Bytes("text/html", buf)
-				}
+				}*/
 
 				if err != nil {
 					templateErr = err
