@@ -1,48 +1,42 @@
-Iris Web Framework
-===========================
+[![Iris Logo](https://raw.githubusercontent.com/kataras/iris/gh-pages/assets/iris_full_logo_2.png)](http://iris-go.com)
+
+Fast, unopinionated, minimalist web framework for [Go Programming Language](https://github.com/golang/go).
+
 [![Project Status](https://img.shields.io/badge/version-3.0.0_alpha5-blue.svg?style=float-square)](HISTORY.md)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
-[![Bountysource](https://img.shields.io/bountysource/team/iris-go/activity.svg?maxAge=2592000?style=flat-square)](https://www.bountysource.com/teams/iris-go)
+[![GoDoc](https://godoc.org/github.com/kataras/iris?status.svg)](https://godoc.org/github.com/kataras/iris)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kataras/iris?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Build Status](https://travis-ci.org/kataras/iris.svg?branch=master&style=flat-square)](https://travis-ci.org/kataras/iris)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kataras/iris)](https://goreportcard.com/report/github.com/kataras/iris)
-[![GoDoc](https://godoc.org/github.com/kataras/iris?status.svg)](https://godoc.org/github.com/kataras/iris)
+[![Bountysource](https://img.shields.io/bountysource/team/iris-go/activity.svg?maxAge=2592000?style=flat-square)](https://www.bountysource.com/teams/iris-go)
 
-
-A Community-driven, mini web application framework for Go Programming Language. Comes with the [highest](#benchmarks) performance achieved so far.
-
-**[Easy to learn](https://kataras.gitbooks.io/iris/content/)** while providing robust set of features for building **modern web applications**.
-
-
-```html
-<!-- ./templates/hi.html -->
-<h1> Hi {{ .Name }} </h1>
-```
 
 ```go
-// ./main.go
+package main
+
 import  "github.com/kataras/iris"
 
 func main() {
 	iris.Get("/hi_html", func(ctx *iris.Context){
 	   page := map[string]interface{}{"Name": "Iris"}
-	   ctx.HTML(iris.StatusOK, "hi.html", page)
+	   ctx.Render("hi.html", page)
 	})
-
-	iris.Get("/hi_markdown", func(ctx *iris.Context){
-	   ctx.Markdown(iris.StatusOK, "# Hi Iris")
-	})
-
 	iris.Listen(":8080")
 }
-
 ```
+
+```html
+<!-- templates/hi.html -->
+<h1> Hi {{ .Name }} </h1>
+```
+
+
 
 > Learn about [configuration](https://kataras.gitbooks.io/iris/content/configuration.html) and [render](https://kataras.gitbooks.io/iris/content/render.html).
 
 
 
-Install
+Installation
 ------------
  The only requirement is Go 1.6
 
@@ -50,7 +44,20 @@ Install
 
  >If you are connected to the Internet through China [click here](https://kataras.gitbooks.io/iris/content/install.html)
 
-How to use
+Features
+------------
+- Robust routing
+- Focus on high performance
+- View system supporting of different template engines, including markdown
+- Highly scalable Websocket & Sessions API
+- Middlewares & Plugins were never be easier
+- Full REST API
+- Content negotiation
+- Transport Layer Security
+- Unlimited instances per app
+
+
+Docs & Community
 ------------
 <a href="https://www.gitbook.com/book/kataras/iris/details"><img align="right" width="185" src="https://raw.githubusercontent.com/kataras/iris/gh-pages/assets/book/cover_1.png"></a>
 
@@ -70,29 +77,31 @@ Open debates
 
  - [E-book Cover - Which one you suggest?](https://github.com/kataras/iris/issues/67)
 
+**TIP** Be sure to read the [history](HISTORY.md) for Migrating from 2.x to 3.x.
 
+
+Philosophy
+------------
+
+The Iris philosophy is to provide robust tooling for HTTP, making it a great solution for single page applications, web sites, hybrids, or public HTTP APIs.
+
+Iris does not force you to use any specific ORM or template engine. With support for the most used template engines, you can quickly craft the perfect application.
 
 Benchmarks
 ------------
 
-
-Benchmarks results taken [from external source](https://github.com/smallnest/go-web-framework-benchmark), created by [@smallnest](https://github.com/smallnest).
-
-This is the most realistic benchmark suite than you will find for Go Web Frameworks. Give attention to its readme.md.
-
-May 12 2016
+This [particular suite](https://github.com/smallnest/go-web-framework-benchmark) benchmarks the realistic/in-practise performance between all known go web frameworks.
 
 
 ![Benchmark Wizzard Processing Time](http://kataras.github.io/iris/assets/benchmark_11_05_2016_different_processing_time.png)
 
-[click here to view detailed tables of different benchmarks](https://github.com/smallnest/go-web-framework-benchmark)
-
-
+[You can click here to view all details.](https://github.com/smallnest/go-web-framework-benchmark)
+Benchmarks were taken by ,external, objective source.
 Versioning
 ------------
 
 [Current](HISTORY.md): **v3.0.0-alpha.5**
->  Iris is a project with active development
+>  Iris is an active project
 
 
 Read more about Semantic Versioning 2.0.0
@@ -100,24 +109,6 @@ Read more about Semantic Versioning 2.0.0
  - http://semver.org/
  - https://en.wikipedia.org/wiki/Software_versioning
  - https://wiki.debian.org/UpstreamGuide#Releases_and_Versions
-
-
-Third party packages
-------------
-
-- [Iris is build on top of fasthttp](https://github.com/valyala/fasthttp)
-- [pongo2 as one of the build'n template engines](https://github.com/flosch/pongo2)
-- [blackfriday markdown as one of the build'n template engines](https://github.com/russross/blackfriday)
-- [mergo for merge configs](https://github.com/imdario/mergo)
-- [formam as form binder](https://github.com/monoculum/formam)
-- [i18n for internalization](https://github.com/Unknwon/i18n)
-
-Contributors
-------------
-
-Thanks goes to the people who have contributed code to this package, see the
-
-- [GitHub Contributors page](https://github.com/kataras/iris/graphs/contributors).
 
 
 Todo
@@ -130,10 +121,15 @@ Todo
 - [ ] Extend, test and publish to the public the Iris' cmd.
 
 
+People
+------------
+The author of Iris is [kataras](https://twitter.com/MakisMaropoulos)
 
-I am a student at the [University of Central Macedonia](http://teiser.gr/index.php?lang=en).
-Nowadays I spend all my time in the construction of Iris, therefore I have no income value.
-I cannot support this project alone.
+[List of all contributors](https://github.com/kataras/iris/graphs/contributors).
+
+
+I spend all my time in the construction of Iris, therefore I have no income value.
+I cannot support this project alone for a long period without your support.
 
 If you,
 
@@ -145,9 +141,40 @@ feel free to send any amount through paypal
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=makis%40ideopod%2ecom&lc=GR&item_name=Iris%20web%20framework&item_number=iriswebframeworkdonationid2016&amount=2%2e00&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
 
 
+### More about your donations
+
+**Thank you**!
+
+I'm  grateful for all the generous donations. Iris is fully funded by these donations.
+
+#### Donors
+
+- [Ryan Brooks](https://github.com/ryanbyyc) donated 50 EUR at May 11
+
+> The name of the donator added after his/her permission.
+
+#### Report, so far
+
+- 13 EUR for the domain, [iris-go.com](https://iris-go.com)
+
+
+**Available**: 50-VAT-13 = 47.5-13 = 34.5 EUR
+
+
+
+
+Third party packages
+------------
+
+- [Iris is build on top of fasthttp](https://github.com/valyala/fasthttp)
+- [pongo2 as one of the build'n template engines](https://github.com/flosch/pongo2)
+- [blackfriday markdown as one of the build'n template engines](https://github.com/russross/blackfriday)
+- [mergo for merge configs](https://github.com/imdario/mergo)
+- [formam as form binder](https://github.com/monoculum/formam)
+- [i18n for internalization](https://github.com/Unknwon/i18n)
+
 License
 ------------
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 License can be found [here](https://github.com/kataras/iris/blob/master/LICENSE).
-

@@ -82,6 +82,8 @@ type (
 
 	// IContextResponse is part of the IContext
 	IContextResponse interface {
+		// SetStatusCode sets the http status code
+		SetStatusCode(int)
 		// SetContentType sets the "Content-Type" header, receives the value
 		SetContentType(string)
 		// SetHeader sets the response headers first parameter is the key, second is the value
