@@ -2,6 +2,7 @@ Iris Web Framework
 ===========================
 [![Project Status](https://img.shields.io/badge/version-3.0.0_alpha5-blue.svg?style=float-square)](HISTORY.md)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Bountysource](https://img.shields.io/bountysource/team/iris-go/activity.svg?maxAge=2592000?style=flat-square)](https://www.bountysource.com/teams/iris-go)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kataras/iris?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Build Status](https://travis-ci.org/kataras/iris.svg?branch=master&style=flat-square)](https://travis-ci.org/kataras/iris)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kataras/iris)](https://goreportcard.com/report/github.com/kataras/iris)
