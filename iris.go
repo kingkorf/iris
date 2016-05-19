@@ -1,4 +1,4 @@
-// Package iris v3.0.0-alpha.5
+// Package iris v3.0.0-alpha.6
 //
 // Note: When 'Station', we mean the Iris type.
 package iris
@@ -19,19 +19,25 @@ import (
 )
 
 const (
-	Version = "v3.0.0-alpha.5"
+	Version = "v3.0.0-alpha.6"
 )
 
-/* for conversion, only these */
+/* for conversion */
+
 var (
-	HTMLEngine    = config.HTMLEngine
-	PongoEngine   = config.PongoEngine
+	HTMLEngine  = config.HTMLEngine
+	PongoEngine = config.PongoEngine
+	JadeEngine  = config.JadeEngine
+	AmberEngine = config.AmberEngine
+
 	DefaultEngine = config.DefaultEngine
 	NoEngine      = config.NoEngine
 	//
 
 	NoLayout = config.NoLayout
 )
+
+/* */
 
 type (
 

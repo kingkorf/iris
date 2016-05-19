@@ -7,7 +7,9 @@ import (
 
 	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/context"
+	"github.com/kataras/iris/render/template/engine/amber"
 	"github.com/kataras/iris/render/template/engine/html"
+	"github.com/kataras/iris/render/template/engine/jade"
 	"github.com/kataras/iris/render/template/engine/markdown"
 	"github.com/kataras/iris/render/template/engine/pongo"
 	"github.com/kataras/iris/utils"
@@ -41,6 +43,10 @@ func New(c config.Template) *Template {
 		e = pongo.New(c) // Pongo2
 	case config.MarkdownEngine:
 		e = markdown.New(c) // Markdown
+	case config.JadeEngine:
+		e = jade.New(c) // Jade
+	case config.AmberEngine:
+		e = amber.New(c)
 	default: // it's the config.NoEngine
 		return nil
 	}

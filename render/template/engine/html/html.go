@@ -17,6 +17,12 @@ type (
 	Engine struct {
 		Config    *config.Template
 		Templates *template.Template
+		// Middleware
+		// Note:
+		// I see that many template engines returns html/template as result
+		// so I decided that the HTMLTemplate should accept a middleware for the final string content will be parsed to the main *html/template.Template
+		// for example user of this property is Jade, currently
+		Middleware func(string, string) (string, error)
 	}
 )
 
@@ -64,7 +70,7 @@ func (s *Engine) buildFromDir() error {
 	dir := s.Config.Directory
 	s.Templates = template.New(dir)
 	s.Templates.Delims(s.Config.HTMLTemplate.Left, s.Config.HTMLTemplate.Right)
-
+	hasMiddleware := s.Middleware != nil
 	// Walk the supplied directory and compile any files that match our extension list.
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if info == nil || info.IsDir() {
@@ -83,7 +89,9 @@ func (s *Engine) buildFromDir() error {
 
 		for _, extension := range s.Config.Extensions {
 			if ext == extension {
+
 				buf, err := ioutil.ReadFile(path)
+				contents := string(buf)
 				/*if s.Config.Minify {
 					buf, err = minifier.Bytes("text/html", buf)
 				}*/
@@ -92,15 +100,28 @@ func (s *Engine) buildFromDir() error {
 					templateErr = err
 					break
 				}
+
 				name := filepath.ToSlash(rel)
 				tmpl := s.Templates.New(name)
 
-				// Add our funcmaps.
-				for _, funcs := range s.Config.HTMLTemplate.Funcs {
-					tmpl.Funcs(funcs)
+				/*if s.Config.HTMLTemplate.Jade {
+					contents, err = jade.Parse(name, contents)
+				}*/
+				if hasMiddleware {
+					contents, err = s.Middleware(name, contents)
 				}
 
-				tmpl.Funcs(emptyFuncs).Parse(string(buf))
+				if err != nil {
+					templateErr = err
+					break
+				}
+
+				// Add our funcmaps.
+				if s.Config.HTMLTemplate.Funcs != nil {
+					tmpl.Funcs(s.Config.HTMLTemplate.Funcs)
+				}
+
+				tmpl.Funcs(emptyFuncs).Parse(contents)
 				break
 			}
 		}
@@ -143,8 +164,9 @@ func (s *Engine) buildFromAsset() error {
 				tmpl := s.Templates.New(name)
 
 				// Add our funcmaps.
-				for _, funcs := range s.Config.HTMLTemplate.Funcs {
-					tmpl.Funcs(funcs)
+				//for _, funcs := range s.Config.HTMLTemplate.Funcs {
+				if s.Config.HTMLTemplate.Funcs != nil {
+					tmpl.Funcs(s.Config.HTMLTemplate.Funcs)
 				}
 
 				tmpl.Funcs(emptyFuncs).Parse(string(buf))

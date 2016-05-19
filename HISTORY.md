@@ -1,5 +1,19 @@
 # History
 
+## 3.0.0-alpha.5 -> 3.0.0-alpha.6
+
+Changes:
+	- config/iris.Config().Render.Template.HTMLTemplate.Funcs typeof `[]template.FuncMap` -> `template.FuncMap`
+
+
+Added:
+	- iris.AmberEngine [Amber](https://github.com/eknkc/amber). [View an example](https://github.com/iris-contrib/examples/tree/master/templates_7_html_amber)
+	- iris.JadeEngine [Jade](https://github.com/Joker/jade). [View an example](https://github.com/iris-contrib/examples/tree/master/templates_6_html_jade)
+
+Book section [Render/Templates updated](https://kataras.gitbooks.io/iris/content/render_templates.html)
+
+
+
 ## 3.0.0-alpha.4 -> 3.0.0-alpha.5
 
 - [NoLayout support for particular templates](https://github.com/kataras/iris/issues/130#issuecomment-219754335)
@@ -19,7 +33,7 @@ Community suggestions implemented:
 
 
 
-Bugfixes and enhancements :
+Bugfixes and enhancements:
 
 - [Static not allowing configuration of `IndexNames`](https://github.com/kataras/iris/issues/128)
 - [Processing access error](https://github.com/kataras/iris/issues/125)

@@ -12,6 +12,8 @@ const (
 	HTMLEngine     EngineType = 0
 	PongoEngine    EngineType = 1
 	MarkdownEngine EngineType = 2
+	JadeEngine     EngineType = 3
+	AmberEngine    EngineType = 4
 
 	DefaultEngine EngineType = HTMLEngine
 
@@ -72,6 +74,8 @@ type (
 		Pongo        Pongo        // contains specific configs for pongo2
 		// Markdown template engine it doesn't supports Layout & binding context
 		Markdown Markdown // contains specific configs for markdown
+		Jade     Jade     // contains specific configs for Jade
+		Amber    Amber    // contains specific configs for Amber
 	}
 
 	HTMLTemplate struct {
@@ -80,7 +84,7 @@ type (
 		Left  string
 		Right string
 		// Funcs for HTMLTemplate html/template
-		Funcs []template.FuncMap
+		Funcs template.FuncMap
 	}
 
 	Pongo struct {
@@ -90,6 +94,16 @@ type (
 
 	Markdown struct {
 		Sanitize bool // if true then returns safe html, default is false
+	}
+
+	// Jade empty for now
+	// stay tuned
+	Jade struct {
+	}
+
+	Amber struct {
+		// Funcs for the html/template result, amber default funcs are not overrided so use it without worries
+		Funcs template.FuncMap
 	}
 )
 
@@ -141,9 +155,11 @@ func DefaultTemplate() Template {
 		ContentType:   "text/html",
 		Charset:       "UTF-8",
 		Layout:        "", // currently this is the only config which not working for pongo2 yet but I will find a way
-		HTMLTemplate:  HTMLTemplate{Left: "{{", Right: "}}", Funcs: make([]template.FuncMap, 0)},
+		HTMLTemplate:  HTMLTemplate{Left: "{{", Right: "}}", Funcs: template.FuncMap{}},
 		Pongo:         Pongo{Filters: make(map[string]pongo2.FilterFunction, 0)},
 		Markdown:      Markdown{Sanitize: false},
+		Amber:         Amber{Funcs: template.FuncMap{}},
+		Jade:          Jade{},
 	}
 }
 

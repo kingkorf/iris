@@ -29,4 +29,4 @@ I'm  grateful for all the generous donations. Iris is fully funded by these dona
 - 13 EUR for the domain, [iris-go.com](https://iris-go.com)
 
 
-**Available**: 50-VAT-13 = 47.5-13 = 34.5 EUR
+**Available**: VAT(50)-13 = 47.5-13 = 34.5 EUR

@@ -2,7 +2,7 @@
 
 Fast, unopinionated, minimalist web framework for [Go Programming Language](https://github.com/golang/go).
 
-[![Project Status](https://img.shields.io/badge/version-3.0.0_alpha5-blue.svg?style=float-square)](HISTORY.md)
+[![Project Status](https://img.shields.io/badge/version-3.0.0_alpha6-blue.svg?style=float-square)](HISTORY.md)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GoDoc](https://godoc.org/github.com/kataras/iris?status.svg)](https://godoc.org/github.com/kataras/iris)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kataras/iris?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -46,16 +46,16 @@ Installation
 
 Features
 ------------
-- Robust routing
 - Focus on high performance
-- View system supporting of different template engines, including markdown
+- Robust routing & subdomains
+- View system supporting [5+](https://kataras.gitbooks.io/iris/content/render_templates.html) template engines
 - Highly scalable Websocket & Sessions API
 - Middlewares & Plugins were never be easier
 - Full REST API
-- Content negotiation
+- Custom HTTP Errors
+- Typescript compiler + Browser editor
+- Content negotiation & streaming
 - Transport Layer Security
-- Unlimited instances per app
-
 
 Docs & Community
 ------------
@@ -90,17 +90,16 @@ Iris does not force you to use any specific ORM or template engine. With support
 Benchmarks
 ------------
 
-This [particular suite](https://github.com/smallnest/go-web-framework-benchmark) benchmarks the realistic/in-practise performance between all known go web frameworks.
-
+[This Benchmark suit]((https://github.com/smallnest/go-web-framework-benchmark)) aims to compare the whole HTTP request processing between Go web frameworks.
 
 ![Benchmark Wizzard Processing Time](http://kataras.github.io/iris/assets/benchmark_11_05_2016_different_processing_time.png)
 
-[You can click here to view all details.](https://github.com/smallnest/go-web-framework-benchmark)
-Benchmarks were taken by ,external, objective source.
+[You can click here to view the details.](https://github.com/smallnest/go-web-framework-benchmark)
+
 Versioning
 ------------
 
-[Current](HISTORY.md): **v3.0.0-alpha.5**
+[Current](HISTORY.md): **v3.0.0-alpha.6**
 >  Iris is an active project
 
 
@@ -158,7 +157,7 @@ I'm  grateful for all the generous donations. Iris is fully funded by these dona
 - 13 EUR for the domain, [iris-go.com](https://iris-go.com)
 
 
-**Available**: 50-VAT-13 = 47.5-13 = 34.5 EUR
+**Available**: VAT(50)-13 = 47.5-13 = 34.5 EUR
 
 
 
@@ -167,7 +166,9 @@ Third party packages
 ------------
 
 - [Iris is build on top of fasthttp](https://github.com/valyala/fasthttp)
-- [pongo2 as one of the build'n template engines](https://github.com/flosch/pongo2)
+- [pongo2 is one of the supporting template engines](https://github.com/flosch/pongo2)
+- [amber is one of the supporting template engines](https://github.com/eknkc/amber)
+- [jade is one of the supporting template engines](https://github.com/Joker/jade)
 - [blackfriday markdown as one of the build'n template engines](https://github.com/russross/blackfriday)
 - [mergo for merge configs](https://github.com/imdario/mergo)
 - [formam as form binder](https://github.com/monoculum/formam)
