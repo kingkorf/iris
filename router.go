@@ -57,10 +57,11 @@ var (
 type router struct {
 	*GardenParty
 	*HTTPErrorContainer
-	station      *Iris
-	garden       *Garden
-	methodMatch  func(m1, m2 string) bool
-	ServeRequest func(reqCtx *fasthttp.RequestCtx)
+	station        *Iris
+	garden         *Garden
+	methodMatch    func(m1, m2 string) bool
+	getRequestPath func(*fasthttp.RequestCtx) []byte
+	ServeRequest   func(reqCtx *fasthttp.RequestCtx)
 	// errorPool is responsible to  get the Context to handle not found errors
 	errorPool sync.Pool
 	//it's true when optimize already ran
@@ -78,12 +79,18 @@ func methodMatchFunc(m1, m2 string) bool {
 	return m1 == m2
 }
 
+func getRequestPathDefault(reqCtx *fasthttp.RequestCtx) []byte {
+	// default to escape then
+	return reqCtx.Path()
+}
+
 // newRouter creates and returns an empty router
 func newRouter(station *Iris) *router {
 	r := &router{
 		station:            station,
 		garden:             &Garden{},
 		methodMatch:        methodMatchFunc,
+		getRequestPath:     getRequestPathDefault,
 		HTTPErrorContainer: defaultHTTPErrors(),
 		GardenParty:        &GardenParty{relativePath: "/", station: station, root: true},
 		errorPool:          station.newContextPool()}
@@ -134,6 +141,14 @@ func (r *router) optimize() {
 	// For performance only,in order to not check at runtime for hosts and subdomains, I think it's better to do this:
 	if r.hosts() {
 		r.ServeRequest = r.serveDomainFunc
+	}
+
+	//if not PathEscape, then take the raw URI
+	if !r.station.config.PathEscape {
+		r.getRequestPath = func(reqCtx *fasthttp.RequestCtx) []byte {
+			// RequestURI fixes the https://github.com/kataras/iris/issues/135
+			return reqCtx.RequestURI()
+		}
 	}
 
 	// set the debug profiling handlers if Profile enabled, before the server startup, not earlier
@@ -203,8 +218,7 @@ func (r *router) notFound(reqCtx *fasthttp.RequestCtx) {
 func (r *router) serveFunc(reqCtx *fasthttp.RequestCtx) {
 	method := utils.BytesToString(reqCtx.Method())
 	tree := r.garden.first
-	// RequestURI fixes the https://github.com/kataras/iris/issues/135
-	path := utils.BytesToString(reqCtx.RequestURI()) // utils.BytesToString(reqCtx.Path())
+	path := utils.BytesToString(r.getRequestPath(reqCtx))
 	for tree != nil {
 		if r.methodMatch(tree.method, method) {
 			if !tree.serve(reqCtx, path) {
@@ -225,8 +239,7 @@ func (r *router) serveFunc(reqCtx *fasthttp.RequestCtx) {
 func (r *router) serveDomainFunc(reqCtx *fasthttp.RequestCtx) {
 	method := utils.BytesToString(reqCtx.Method())
 	domain := utils.BytesToString(reqCtx.Host())
-	// replace reqCtx.Path() https://github.com/kataras/iris/issues/135
-	path := reqCtx.RequestURI()
+	path := r.getRequestPath(reqCtx)
 	tree := r.garden.first
 	for tree != nil {
 		if tree.hosts && tree.domain == domain {

@@ -26,6 +26,7 @@ type (
 		//
 		// By default request body size is unlimited.
 		MaxRequestBodySize int64
+
 		// PathCorrection corrects and redirects the requested path to the registed path
 		// for example, if /home/ path is requested but no handler for this Route found,
 		// then the Router checks if /home handler exists, if yes,
@@ -33,6 +34,21 @@ type (
 		//
 		// Default is true
 		PathCorrection bool
+
+		// PathEscape escapes the path, the named parameters (if any).
+		// Disable it if you want something like this https://github.com/kataras/iris/issues/135 to work
+		//
+		// When do you need to Disable(false) it:
+		// accepts parameters with slash '/'
+		// Request: http://localhost:8080/details/Project%2FDelta
+		// ctx.Param("project") returns the raw named parameter: Project%2FDelta
+		// which you can escape it manually with net/url:
+		// projectName, _ := url.QueryUnescape(c.Param("project").
+		// With PathEscape = true this will redirect to 404 not found error because of the Project/Data
+		// Look here: https://github.com/kataras/iris/issues/135
+		//
+		// Default is true
+		PathEscape bool
 
 		// Log turn it to false if you want to disable logger,
 		// Iris prints/logs ONLY errors, so be careful when you disable it
@@ -90,6 +106,7 @@ func DefaultRender() Render {
 func Default() Iris {
 	return Iris{
 		PathCorrection:     true,
+		PathEscape:         true,
 		MaxRequestBodySize: -1,
 		Log:                true,
 		Profile:            false,
