@@ -38,6 +38,9 @@ var emptyFuncs = template.FuncMap{
 	}, "render": func() (string, error) {
 		return "", nil
 	},
+	/* just for test with jade "bold": func() (string, error) {
+		return "", nil
+	},*/
 }
 
 // New creates and returns the HTMLTemplate template engine
@@ -208,6 +211,9 @@ func (s *Engine) layoutFuncsFor(name string, binding interface{}) {
 			return template.HTML(buf.String()), err
 
 		},
+		/* just for test with jade  "bold": func(content string) (template.HTML, error) {
+			return template.HTML("<b>" + content + "</b>"), nil
+		},*/
 	}
 	if tpl := s.Templates.Lookup(name); tpl != nil {
 		tpl.Funcs(funcs)

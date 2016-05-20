@@ -1,9 +1,10 @@
 package template
 
 import (
-	"compress/gzip"
 	"fmt"
 	"io"
+
+	"github.com/klauspost/compress/gzip"
 
 	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/context"
