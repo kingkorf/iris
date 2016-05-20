@@ -178,14 +178,6 @@ func (r *router) optimize() {
 			}
 
 		})
-		/*r.Get(debugPath+"/cmdline", htmlMiddleware)
-		r.Get(debugPath+"/profile", htmlMiddleware)
-		r.Get(debugPath+"/symbol", htmlMiddleware)
-
-		r.Get(debugPath+"/goroutine", htmlMiddleware)
-		r.Get(debugPath+"/heap", htmlMiddleware)
-		r.Get(debugPath+"/threadcreate", htmlMiddleware)
-		r.Get(debugPath+"/debug/block", htmlMiddleware)*/
 
 	}
 
@@ -211,7 +203,8 @@ func (r *router) notFound(reqCtx *fasthttp.RequestCtx) {
 func (r *router) serveFunc(reqCtx *fasthttp.RequestCtx) {
 	method := utils.BytesToString(reqCtx.Method())
 	tree := r.garden.first
-	path := utils.BytesToString(reqCtx.Path())
+	// RequestURI fixes the https://github.com/kataras/iris/issues/135
+	path := utils.BytesToString(reqCtx.RequestURI()) // utils.BytesToString(reqCtx.Path())
 	for tree != nil {
 		if r.methodMatch(tree.method, method) {
 			if !tree.serve(reqCtx, path) {
@@ -232,14 +225,15 @@ func (r *router) serveFunc(reqCtx *fasthttp.RequestCtx) {
 func (r *router) serveDomainFunc(reqCtx *fasthttp.RequestCtx) {
 	method := utils.BytesToString(reqCtx.Method())
 	domain := utils.BytesToString(reqCtx.Host())
-	path := reqCtx.Path()
+	// replace reqCtx.Path() https://github.com/kataras/iris/issues/135
+	path := reqCtx.RequestURI()
 	tree := r.garden.first
 	for tree != nil {
 		if tree.hosts && tree.domain == domain {
 			// here we have an issue, at fasthttp/uri.go 273-274 line normalize path it adds a '/' slash at the beginning, it doesn't checks for subdomains
 			// I could fix it but i leave it as it is, I just create a new function inside tree named 'serveReturn' which accepts a path too. ->
 			//-> reqCtx.Request.URI().SetPathBytes(append(reqCtx.Host(), reqCtx.Path()...)) <-
-			path = append(reqCtx.Host(), reqCtx.Path()...)
+			path = append(reqCtx.Host(), path...)
 		}
 		if r.methodMatch(tree.method, method) {
 			if tree.serve(reqCtx, utils.BytesToString(path)) {
