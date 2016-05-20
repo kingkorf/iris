@@ -96,6 +96,11 @@ Benchmarks
 
 [You can click here to view the details.](https://github.com/smallnest/go-web-framework-benchmark)
 
+Testing
+------------
+
+[Httpexpect](https://github.com/gavv/httpexpect) supports fasthttp & Iris after recommandation. Its author is active and a very good developer so I believe its a promising library.
+
 Versioning
 ------------
 
