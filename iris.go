@@ -25,10 +25,11 @@ const (
 /* for conversion */
 
 var (
-	HTMLEngine  = config.HTMLEngine
-	PongoEngine = config.PongoEngine
-	JadeEngine  = config.JadeEngine
-	AmberEngine = config.AmberEngine
+	HTMLEngine     = config.HTMLEngine
+	PongoEngine    = config.PongoEngine
+	MarkdownEngine = config.MarkdownEngine
+	JadeEngine     = config.JadeEngine
+	AmberEngine    = config.AmberEngine
 
 	DefaultEngine = config.DefaultEngine
 	NoEngine      = config.NoEngine
