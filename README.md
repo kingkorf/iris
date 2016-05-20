@@ -99,6 +99,7 @@ Benchmarks
 Testing
 ------------
 
+Iris suggests you to use [this, new,](https://github.com/gavv/httpexpect) suite to test your API.
 [Httpexpect](https://github.com/gavv/httpexpect) supports fasthttp & Iris after recommandation. Its author is active and a very good developer so I believe its a promising library.
 
 Versioning
