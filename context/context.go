@@ -70,7 +70,7 @@ type (
 		ParamInt(string) (int, error)
 		URLParam(string) string
 		URLParamInt(string) (int, error)
-		URLParams() map[string][]string
+		URLParams() map[string]string
 		MethodString() string
 		HostString() string
 		PathString() string

@@ -27,10 +27,10 @@ func (ctx *Context) URLParam(key string) string {
 }
 
 // URLParams returns a map of a list of each url(query) parameter
-func (ctx *Context) URLParams() map[string][]string {
-	urlparams := make(map[string][]string)
+func (ctx *Context) URLParams() map[string]string {
+	urlparams := make(map[string]string)
 	ctx.RequestCtx.Request.URI().QueryArgs().VisitAll(func(key, value []byte) {
-		urlparams[string(key)] = []string{string(value)}
+		urlparams[string(key)] = string(value)
 	})
 	return urlparams
 }

@@ -14,25 +14,25 @@ var internalServerMessage = "Iris custom message for 500 internal server error"
 
 var routesCustomErrors = []route{
 	// NOT FOUND CUSTOM ERRORS - not registed
-	route{"GET", "/test_get_nofound_custom", notFoundMessage, 404, false},
-	route{"POST", "/test_post_nofound_custom", notFoundMessage, 404, false},
-	route{"PUT", "/test_put_nofound_custom", notFoundMessage, 404, false},
-	route{"DELETE", "/test_delete_nofound_custom", notFoundMessage, 404, false},
-	route{"HEAD", "/test_head_nofound_custom", notFoundMessage, 404, false},
-	route{"OPTIONS", "/test_options_nofound_custom", notFoundMessage, 404, false},
-	route{"CONNECT", "/test_connect_nofound_custom", notFoundMessage, 404, false},
-	route{"PATCH", "/test_patch_nofound_custom", notFoundMessage, 404, false},
-	route{"TRACE", "/test_trace_nofound_custom", notFoundMessage, 404, false},
+	route{"GET", "/test_get_nofound_custom", "/test_get_nofound_custom", notFoundMessage, 404, false, nil, nil},
+	route{"POST", "/test_post_nofound_custom", "/test_post_nofound_custom", notFoundMessage, 404, false, nil, nil},
+	route{"PUT", "/test_put_nofound_custom", "/test_put_nofound_custom", notFoundMessage, 404, false, nil, nil},
+	route{"DELETE", "/test_delete_nofound_custom", "/test_delete_nofound_custom", notFoundMessage, 404, false, nil, nil},
+	route{"HEAD", "/test_head_nofound_custom", "/test_head_nofound_custom", notFoundMessage, 404, false, nil, nil},
+	route{"OPTIONS", "/test_options_nofound_custom", "/test_options_nofound_custom", notFoundMessage, 404, false, nil, nil},
+	route{"CONNECT", "/test_connect_nofound_custom", "/test_connect_nofound_custom", notFoundMessage, 404, false, nil, nil},
+	route{"PATCH", "/test_patch_nofound_custom", "/test_patch_nofound_custom", notFoundMessage, 404, false, nil, nil},
+	route{"TRACE", "/test_trace_nofound_custom", "/test_trace_nofound_custom", notFoundMessage, 404, false, nil, nil},
 	// SERVER INTERNAL ERROR 500 PANIC CUSTOM ERRORS - registed
-	route{"GET", "/test_get_panic_custom", internalServerMessage, 500, true},
-	route{"POST", "/test_post_panic_custom", internalServerMessage, 500, true},
-	route{"PUT", "/test_put_panic_custom", internalServerMessage, 500, true},
-	route{"DELETE", "/test_delete_panic_custom", internalServerMessage, 500, true},
-	route{"HEAD", "/test_head_panic_custom", internalServerMessage, 500, true},
-	route{"OPTIONS", "/test_options_panic_custom", internalServerMessage, 500, true},
-	route{"CONNECT", "/test_connect_panic_custom", internalServerMessage, 500, true},
-	route{"PATCH", "/test_patch_panic_custom", internalServerMessage, 500, true},
-	route{"TRACE", "/test_trace_panic_custom", internalServerMessage, 500, true},
+	route{"GET", "/test_get_panic_custom", "/test_get_panic_custom", internalServerMessage, 500, true, nil, nil},
+	route{"POST", "/test_post_panic_custom", "/test_post_panic_custom", internalServerMessage, 500, true, nil, nil},
+	route{"PUT", "/test_put_panic_custom", "/test_put_panic_custom", internalServerMessage, 500, true, nil, nil},
+	route{"DELETE", "/test_delete_panic_custom", "/test_delete_panic_custom", internalServerMessage, 500, true, nil, nil},
+	route{"HEAD", "/test_head_panic_custom", "/test_head_panic_custom", internalServerMessage, 500, true, nil, nil},
+	route{"OPTIONS", "/test_options_panic_custom", "/test_options_panic_custom", internalServerMessage, 500, true, nil, nil},
+	route{"CONNECT", "/test_connect_panic_custom", "/test_connect_panic_custom", internalServerMessage, 500, true, nil, nil},
+	route{"PATCH", "/test_patch_panic_custom", "/test_patch_panic_custom", internalServerMessage, 500, true, nil, nil},
+	route{"TRACE", "/test_trace_panic_custom", "/test_trace_panic_custom", internalServerMessage, 500, true, nil, nil},
 }
 
 func TestCustomErrors(t *testing.T) {
@@ -65,7 +65,7 @@ func TestCustomErrors(t *testing.T) {
 
 	// run the tests
 	for _, r := range routesCustomErrors {
-		e.Request(r.Method, r.Path).
+		e.Request(r.Method, r.RequestPath).
 			Expect().
 			Status(r.Status).Body().Equal(r.Body)
 	}

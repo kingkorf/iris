@@ -10,6 +10,8 @@ I have added some test examples to this directory also in order to help you
 */
 package tests
 
+// run all verbose mode:
+// go test -v
 // run all:
 // go test .
 // run specific:
