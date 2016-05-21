@@ -58,8 +58,8 @@ type (
 		XML(status int, v interface{}) error
 
 		ExecuteTemplate(*template.Template, interface{}) error
-		ServeContent(io.ReadSeeker, string, time.Time) error
-		ServeFile(string) error
+		ServeContent(io.ReadSeeker, string, time.Time, bool) error
+		ServeFile(string, bool) error
 		SendFile(filename string, destinationName string) error
 		Stream(func(*bufio.Writer))
 	}

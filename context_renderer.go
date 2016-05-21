@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/kataras/iris/utils"
+	"github.com/klauspost/compress/gzip"
 )
 
 // Write writes a string via the context's ResponseWriter
@@ -95,7 +96,7 @@ func (ctx *Context) ExecuteTemplate(tmpl *template.Template, pageContext interfa
 // receives three parameters, it's low-level function, instead you can use .ServeFile(string)
 //
 // You can define your own "Content-Type" header also, after this function call
-func (ctx *Context) ServeContent(content io.ReadSeeker, filename string, modtime time.Time) error {
+func (ctx *Context) ServeContent(content io.ReadSeeker, filename string, modtime time.Time, gzipCompression bool) (err error) {
 	if t, err := time.Parse(TimeFormat, ctx.RequestHeader(IfModifiedSince)); err == nil && modtime.Before(t.Add(1*time.Second)) {
 		ctx.RequestCtx.Response.Header.Del(ContentType)
 		ctx.RequestCtx.Response.Header.Del(ContentLength)
@@ -106,16 +107,29 @@ func (ctx *Context) ServeContent(content io.ReadSeeker, filename string, modtime
 	ctx.RequestCtx.Response.Header.Set(ContentType, utils.TypeByExtension(filename))
 	ctx.RequestCtx.Response.Header.Set(LastModified, modtime.UTC().Format(TimeFormat))
 	ctx.RequestCtx.SetStatusCode(200)
-	_, err := io.Copy(ctx.RequestCtx.Response.BodyWriter(), content)
+	var out io.Writer
+	if gzipCompression {
+		ctx.RequestCtx.Response.Header.Add("Content-Encoding", "gzip")
+		gzipWriter := ctx.station.gzipWriterPool.Get().(*gzip.Writer)
+		gzipWriter.Reset(ctx.RequestCtx.Response.BodyWriter())
+		defer gzipWriter.Close()
+		defer ctx.station.gzipWriterPool.Put(gzipWriter)
+		out = gzipWriter
+	} else {
+		out = ctx.RequestCtx.Response.BodyWriter()
+
+	}
+	_, err = io.Copy(out, content)
 	return ErrServeContent.With(err)
 }
 
 // ServeFile serves a view file, to send a file ( zip for example) to the client you should use the SendFile(serverfilename,clientfilename)
-// receives one parameter
-// filename (string)
+// receives two parameters
+// filename/path (string)
+// gzipCompression (bool)
 //
 // You can define your own "Content-Type" header also, after this function call
-func (ctx *Context) ServeFile(filename string) error {
+func (ctx *Context) ServeFile(filename string, gzipCompression bool) error {
 	f, err := os.Open(filename)
 	if err != nil {
 		return fmt.Errorf("%d", 404)
@@ -130,7 +144,7 @@ func (ctx *Context) ServeFile(filename string) error {
 		}
 		fi, _ = f.Stat()
 	}
-	return ctx.ServeContent(f, fi.Name(), fi.ModTime())
+	return ctx.ServeContent(f, fi.Name(), fi.ModTime(), gzipCompression)
 }
 
 // SendFile sends file for force-download to the client
@@ -138,7 +152,7 @@ func (ctx *Context) ServeFile(filename string) error {
 // You can define your own "Content-Type" header also, after this function call
 // for example: ctx.Response.Header.Set("Content-Type","thecontent/type")
 func (ctx *Context) SendFile(filename string, destinationName string) error {
-	err := ctx.ServeFile(filename)
+	err := ctx.ServeFile(filename, false)
 	if err != nil {
 		return err
 	}

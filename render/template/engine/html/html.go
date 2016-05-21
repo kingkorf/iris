@@ -38,7 +38,8 @@ var emptyFuncs = template.FuncMap{
 	}, "render": func() (string, error) {
 		return "", nil
 	},
-	/* just for test with jade "bold": func() (string, error) {
+	// just for test with jade
+	/*"bold": func() (string, error) {
 		return "", nil
 	},*/
 }
@@ -107,9 +108,6 @@ func (s *Engine) buildFromDir() error {
 				name := filepath.ToSlash(rel)
 				tmpl := s.Templates.New(name)
 
-				/*if s.Config.HTMLTemplate.Jade {
-					contents, err = jade.Parse(name, contents)
-				}*/
 				if hasMiddleware {
 					contents, err = s.Middleware(name, contents)
 				}
@@ -211,7 +209,8 @@ func (s *Engine) layoutFuncsFor(name string, binding interface{}) {
 			return template.HTML(buf.String()), err
 
 		},
-		/* just for test with jade  "bold": func(content string) (template.HTML, error) {
+		// just for test with jade
+		/*"bold": func(content string) (template.HTML, error) {
 			return template.HTML("<b>" + content + "</b>"), nil
 		},*/
 	}

@@ -28,16 +28,11 @@ type (
 		Any(string, ...HandlerFunc)
 		Use(...Handler)
 		UseFunc(...HandlerFunc)
-		// Static serves a directory
-		// accepts three parameters
-		// first parameter is the request url path (string)
-		// second parameter is the system directory (string)
-		// third parameter is the level (int) of stripSlashes
-		// * stripSlashes = 0, original path: "/foo/bar", result: "/foo/bar"
-		// * stripSlashes = 1, original path: "/foo/bar", result: "/bar"
-		// * stripSlashes = 2, original path: "/foo/bar", result: ""
+		StaticHandlerFunc(systemPath string, stripSlashes int, compress bool, generateIndexPages bool, indexNames []string) HandlerFunc
 		Static(string, string, int)
 		StaticFS(string, string, int)
+		StaticWeb(relative string, systemPath string, stripSlashes int)
+		StaticServe(systemPath string, requestPath ...string)
 		Party(string, ...HandlerFunc) IParty // Each party can have a party too
 		IsRoot() bool
 	}
@@ -301,8 +296,9 @@ func (p *GardenParty) Static(relative string, systemPath string, stripSlashes in
 }
 
 // StaticFS registers a route which serves a system directory
+// this is the fastest method to serve static files
 // generates an index page which list all files
-// uses compression which file cache, if you use this method it will generate compressed files also
+// if you use this method it will generate compressed files also
 // think this function as small fileserver with http
 // accepts three parameters
 // first parameter is the request url path (string)
@@ -329,13 +325,15 @@ func (p *GardenParty) StaticFS(relative string, systemPath string, stripSlashes 
 // * stripSlashes = 0, original path: "/foo/bar", result: "/foo/bar"
 // * stripSlashes = 1, original path: "/foo/bar", result: "/bar"
 // * stripSlashes = 2, original path: "/foo/bar", result: ""
+// * if you don't know what to put on stripSlashes just 1
+
 func (p *GardenParty) StaticWeb(relative string, systemPath string, stripSlashes int) {
 	if relative[len(relative)-1] != SlashByte { // if / then /*filepath, if /something then /something/*filepath
 		relative += "/"
 	}
 
 	hasIndex := utils.Exists(systemPath + utils.PathSeparator + "index.html")
-	serveHandler := p.StaticHandlerFunc(systemPath, 1, false, !hasIndex, nil) // if not index.html exists then generate index.html which shows the list of files
+	serveHandler := p.StaticHandlerFunc(systemPath, stripSlashes, false, !hasIndex, nil) // if not index.html exists then generate index.html which shows the list of files
 	indexHandler := func(ctx *Context) {
 		if len(ctx.Param("filepath")) < 2 && hasIndex {
 			ctx.Request.SetRequestURI("index.html")
@@ -345,6 +343,38 @@ func (p *GardenParty) StaticWeb(relative string, systemPath string, stripSlashes
 	}
 	p.Get(relative+"*filepath", indexHandler, serveHandler)
 	p.Head(relative+"*filepath", indexHandler, serveHandler)
+}
+
+// StaticServe serves a directory as web resource
+// it's the simpliest form of the Static* functions
+// Almost same usage as StaticWeb
+// accepts only one required parameter which is the systemPath ( the same path will be used to register the GET&HEAD routes)
+// if second parameter is empty, otherwise the requestPath is the second parameter
+// it uses gzip compression (compression on each request, no file cache)
+func (p *GardenParty) StaticServe(systemPath string, requestPath ...string) {
+	var reqPath string
+
+	if len(reqPath) > 0 {
+		reqPath = requestPath[0]
+	}
+
+	reqPath = strings.Replace(systemPath, utils.PathSeparator, Slash, -1) // replaces any \ to /
+	reqPath = strings.Replace(reqPath, "//", Slash, -1)                   // for any case, replaces // to /
+	reqPath = strings.Replace(reqPath, ".", "", -1)                       // replace any dots (./mypath -> /mypath)
+
+	p.Get(reqPath+"/*file", func(ctx *Context) {
+		filepath := ctx.Param("file")
+
+		path := strings.Replace(filepath, "/", utils.PathSeparator, -1)
+		path = absPath(systemPath, path)
+
+		if !utils.DirectoryExists(path) {
+			ctx.NotFound()
+			return
+		}
+
+		ctx.ServeFile(path, true)
+	})
 }
 
 // Party is just a group joiner of routes which have the same prefix and share same middleware(s) also.

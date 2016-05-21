@@ -16,6 +16,7 @@ import (
 	"github.com/kataras/iris/sessions"
 	_ "github.com/kataras/iris/sessions/providers/memory"
 	_ "github.com/kataras/iris/sessions/providers/redis"
+	"github.com/klauspost/compress/gzip"
 )
 
 const (
@@ -52,6 +53,7 @@ type (
 		templates      *template.Template
 		sessionManager *sessions.Manager
 		logger         *logger.Logger
+		gzipWriterPool sync.Pool // this pool is used everywhere needed in the iris for example inside party-> StaticSimple
 	}
 )
 
@@ -70,6 +72,8 @@ func New(cfg ...config.Iris) *Iris {
 	// set the Logger
 	s.logger = logger.New()
 
+	// set the gzip writer pool
+	s.gzipWriterPool = sync.Pool{New: func() interface{} { return &gzip.Writer{} }}
 	return s
 }
 
