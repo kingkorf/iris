@@ -2,7 +2,7 @@
 
 Fast, unopinionated, minimalist web framework for [Go Programming Language](https://github.com/golang/go).
 
-[![Project Status](https://img.shields.io/badge/version-3.0.0_alpha7-blue.svg?style=float-square)](HISTORY.md)
+[![Project Status](https://img.shields.io/badge/version-3.0.0_alpha6-blue.svg?style=float-square)](HISTORY.md)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GoDoc](https://godoc.org/github.com/kataras/iris?status.svg)](https://godoc.org/github.com/kataras/iris)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kataras/iris?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -105,7 +105,7 @@ Iris suggests you to use [this, new,](https://github.com/gavv/httpexpect) suite 
 Versioning
 ------------
 
-[Current](HISTORY.md): **v3.0.0-alpha.7**
+[Current](HISTORY.md): **v3.0.0-alpha.6**
 >  Iris is an active project
 
 
