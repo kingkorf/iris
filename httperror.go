@@ -139,7 +139,8 @@ type (
 // HTTPErrorHandlerFunc creates a handler which is responsible to send a particular error to the client
 func HTTPErrorHandlerFunc(statusCode int, message string) HandlerFunc {
 	return func(ctx *Context) {
-		ctx.Text(statusCode, message)
+		ctx.SetStatusCode(statusCode)
+		ctx.SetBodyString(message)
 	}
 }
 
@@ -162,8 +163,8 @@ func (e *HTTPErrorHandler) SetHandler(h HandlerFunc) {
 func defaultHTTPErrors() *HTTPErrorContainer {
 	httperrors := new(HTTPErrorContainer)
 	httperrors.Errors = make([]*HTTPErrorHandler, 0)
-	httperrors.OnError(StatusNotFound, HTTPErrorHandlerFunc(StatusNotFound, "404 not found"))
-	httperrors.OnError(StatusInternalServerError, HTTPErrorHandlerFunc(StatusInternalServerError, "The server encountered an unexpected condition which prevented it from fulfilling the request."))
+	httperrors.OnError(StatusNotFound, HTTPErrorHandlerFunc(StatusNotFound, statusText[StatusNotFound]))
+	httperrors.OnError(StatusInternalServerError, HTTPErrorHandlerFunc(StatusInternalServerError, statusText[StatusInternalServerError]))
 	return httperrors
 }
 
@@ -207,7 +208,8 @@ func (he *HTTPErrorContainer) EmitError(errCode int, ctx *Context) {
 	} else {
 		//if no error is registed, then register it with the default http error text, and re-run the Emit
 		he.OnError(errCode, func(c *Context) {
-			c.Text(errCode, StatusText(errCode))
+			c.SetStatusCode(errCode)
+			c.SetBodyString(StatusText(errCode))
 		})
 		he.EmitError(errCode, ctx)
 	}
