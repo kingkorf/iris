@@ -1,4 +1,4 @@
-// Package iris v3.0.0-alpha.6
+// Package iris v3.0.0-alpha.7
 //
 // Note: When 'Station', we mean the Iris type.
 package iris
@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	Version = "v3.0.0-alpha.6"
+	Version = "v3.0.0-alpha.7"
 )
 
 /* for conversion */

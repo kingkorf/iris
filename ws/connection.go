@@ -26,7 +26,8 @@ const (
 
 type (
 	iemmiter interface {
-		Emit([]byte)
+		EmitMessage(rawData []byte)
+		Emit(event string, data interface{}) error
 	}
 
 	emmiter struct {
@@ -52,9 +53,22 @@ type (
 	}
 )
 
-func (e emmiter) Emit(data []byte) {
-	message := Message{payload: Payload{From: e.conn.Id, To: e.to, Type: DefaultPayloadType}, data: data}
+// EmmitMessage emits pure websocket message
+func (e emmiter) EmitMessage(rawData []byte) {
+	message := Message{payload: Payload{From: e.conn.Id, To: e.to, Type: DefaultPayloadType}, data: rawData}
 	e.conn.NotifyMessage(message) // -> hub
+}
+
+// Emit emits an iris-ws  event with data
+// Supported data are: string, int, bool, bytes and JSON.
+func (e emmiter) Emit(event string, data interface{}) error {
+	if message, err := encodeMessage(event, data); err != nil {
+		return err
+	} else {
+		e.EmitMessage(message)
+	}
+
+	return nil
 }
 
 // NewConnection creates a connection and returns it
@@ -74,9 +88,15 @@ func (c *Connection) To(to string) iemmiter {
 	return emmiter{conn: c, to: to}
 }
 
-func (c *Connection) Emit(data []byte) {
+func (c *Connection) Emit(event string, data interface{}) {
 	//same as To(c.Id).Emit
-	c.To(c.Id).Emit(data)
+	c.To(c.Id).Emit(event, data)
+}
+
+// EmitMessage sends a raw data just like normal websockets
+func (c *Connection) EmitMessage(rawData []byte) {
+	//same as To(c.Id).EmitMessage
+	c.To(c.Id).EmitMessage(rawData)
 }
 
 /***** ****/

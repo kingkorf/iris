@@ -83,11 +83,11 @@ func (h *Hub) Run() {
 				to := message.payload.To
 				if to != ToAll { // if it's not suppose to send to all connections (including itself)
 					if to != ToAllExceptMe && to != c.Id { // if to specific To, connection.To("connectionid").Emit([]byte("msg"))
-						println("Hub:89 break1")
+						//	println("Hub:89 break1")
 						continue
 
 					} else if to == ToAllExceptMe && message.payload.From == c.Id { // if connection.Broadcast.Emit([]byte("msg"))
-						println("Hub:93 break2")
+						//	println("Hub:93 break2")
 						continue
 					}
 				}

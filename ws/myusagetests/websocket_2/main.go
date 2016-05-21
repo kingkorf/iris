@@ -35,10 +35,10 @@ func chat(w *ws.Ws) {
 	w.OnConnection(func(c *ws.Connection) {
 		println("connection with Id: " + c.Id + " just connected")
 		c.OnMessage(func(message []byte) {
-			println("Message sent: " + string(message) + " from: " + c.Id)
-			c.Broadcast.Emit([]byte("From: " + c.Id + "-> " + string(message))) // to all except this connection //worked
+			//println("Message sent: " + string(message) + " from: " + c.Id)
+			c.Broadcast.EmitMessage([]byte("From: " + c.Id + "-> " + string(message))) // to all except this connection //worked
 			//c.To(string(message)).Emit(message) //send the socket id which is the given message //worked
-			c.Emit([]byte("to my self: " + string(message))) // worked
+			c.EmitMessage([]byte("to my self: " + string(message))) // worked
 		})
 	})
 
