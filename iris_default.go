@@ -236,6 +236,16 @@ func StaticWeb(relative string, systemPath string, stripSlashes int) {
 	DefaultIris.StaticWeb(relative, systemPath, stripSlashes)
 }
 
+// StaticServe serves a directory as web resource
+// it's the simpliest form of the Static* functions
+// Almost same usage as StaticWeb
+// accepts only one required parameter which is the systemPath ( the same path will be used to register the GET&HEAD routes)
+// if second parameter is empty, otherwise the requestPath is the second parameter
+// it uses gzip compression (compression on each request, no file cache)
+func StaticServe(systemPath string, requestPath ...string) {
+	DefaultIris.StaticServe(systemPath, requestPath...)
+}
+
 // OnError Registers a handler for a specific http error status
 func OnError(httpStatus int, handler HandlerFunc) {
 	DefaultIris.OnError(httpStatus, handler)
