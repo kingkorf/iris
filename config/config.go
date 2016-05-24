@@ -6,5 +6,11 @@ import (
 )
 
 var (
-	StaticCacheDuration = 5 * time.Minute
+	// StaticCacheDuration expiration duration for INACTIVE file handlers
+	StaticCacheDuration = 20 * time.Second
+	// CompressedFileSuffix is the suffix to add to the name of
+	// cached compressed file when using the .StaticFS function.
+	//
+	// Defaults to iris-fasthttp.gz
+	CompressedFileSuffix = "iris-fasthttp.gz"
 )

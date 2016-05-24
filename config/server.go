@@ -12,7 +12,7 @@ const (
 )
 
 // ServerName the response header of the 'Server' value when writes to the client
-var ServerName = "iris"
+const ServerName = "iris"
 
 // Server used inside server for listening
 type Server struct {

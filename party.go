@@ -255,8 +255,9 @@ func (p *GardenParty) StaticHandlerFunc(systemPath string, stripSlashes int, com
 		GenerateIndexPages: generateIndexPages,
 
 		// Enable transparent compression to save network traffic.
-		Compress:      compress,
-		CacheDuration: config.StaticCacheDuration,
+		Compress:             compress,
+		CacheDuration:        config.StaticCacheDuration,
+		CompressedFileSuffix: config.CompressedFileSuffix,
 	}
 
 	if stripSlashes > 0 {

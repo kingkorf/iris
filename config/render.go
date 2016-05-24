@@ -136,7 +136,7 @@ func (c Rest) Merge(cfg []Rest) (config Rest) {
 	return
 }
 
-// Merge MergeSingle the default with the given config and returns the result
+// MergeSingle merges the default with the given config and returns the result
 func (c Rest) MergeSingle(cfg Rest) (config Rest) {
 
 	config = cfg
@@ -177,7 +177,7 @@ func (c Template) Merge(cfg []Template) (config Template) {
 	return
 }
 
-// Merge MergeSingle the default with the given config and returns the result
+// MergeSingle merges the default with the given config and returns the result
 func (c Template) MergeSingle(cfg Template) (config Template) {
 
 	config = cfg
