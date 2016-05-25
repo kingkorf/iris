@@ -39,6 +39,8 @@ const (
 	boolMessageType
 	bytesMessageType
 	jsonMessageType
+	// custom events
+	///TODO: join/leave room
 )
 
 const (
@@ -58,7 +60,7 @@ var (
 
 // encodeMessage encodes a custom websocket message from server to be delivered to the client
 // returns the  string form of the message
-// Supported data are: string, int, bool, bytes and JSON.
+// Supported data types are: string, int, bool, bytes and JSON.
 func encodeMessage(event string, data interface{}) (string, error) {
 	var msgType messageType
 	var dataMessage string
@@ -100,8 +102,8 @@ func encodeMessage(event string, data interface{}) (string, error) {
 }
 
 // decodeMessage decodes a custom websocket message from the client
-// ex: iris-websocket-message;user;4;themarshaledstringfromajsonstruct will return themarshaledstringfromajsonstruct as JSON
-// Supported data are: string, int, bool, bytes and JSON.
+// ex: iris-websocket-message;chat;4;themarshaledstringfromajsonstruct will return 'hello' as string
+// Supported data types are: string, int, bool, bytes and JSON.
 func decodeMessage(event string, websocketMessage string) (message interface{}, err error) {
 	t, formaterr := strconv.Atoi(websocketMessage[prefixAndSepIdx+len(event)+1 : prefixAndSepIdx+len(event)+2]) // in order to iris-websocket-message;user;-> 4
 	if formaterr != nil {

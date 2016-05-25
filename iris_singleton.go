@@ -255,6 +255,11 @@ func Favicon(favPath string, requestPath ...string) error {
 	return DefaultIris.Favicon(favPath)
 }
 
+// StaticContent serves bytes, memory cached, on the reqPath
+func StaticContent(reqPath string, contentType string, content []byte) {
+	DefaultIris.StaticContent(reqPath, contentType, content)
+}
+
 // OnError Registers a handler for a specific http error status
 func OnError(httpStatus int, handler HandlerFunc) {
 	DefaultIris.OnError(httpStatus, handler)

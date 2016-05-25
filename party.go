@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/kataras/iris/config"
+	"github.com/kataras/iris/context"
 	"github.com/kataras/iris/utils"
 	"github.com/valyala/fasthttp"
 )
@@ -193,6 +194,13 @@ func (p *GardenParty) Any(registedPath string, handlersFn ...HandlerFunc) {
 		p.HandleFunc(k, registedPath, handlersFn...)
 	}
 
+}
+
+// H_ is used to convert a context.IContext handler func to iris.HandlerFunc, is used only inside iris internal package to avoid import cycles
+func (p *GardenParty) H_(method string, registedPath string, fn func(context.IContext)) {
+	p.HandleFunc(method, registedPath, func(ctx *Context) {
+		fn(ctx)
+	})
 }
 
 // Use registers a Handler middleware
@@ -442,6 +450,29 @@ func (p *GardenParty) Favicon(favPath string, requestPath ...string) error {
 	p.Get(reqPath, h)
 	p.Head(reqPath, h)
 	return nil
+}
+
+// StaticContent serves bytes, memory cached, on the reqPath
+func (p *GardenParty) StaticContent(reqPath string, contentType string, content []byte) {
+	modtime := time.Now()
+	modtimeStr := modtime.UTC().Format(TimeFormat)
+
+	h := func(ctx *Context) {
+		if t, err := time.Parse(TimeFormat, ctx.RequestHeader(IfModifiedSince)); err == nil && modtime.Before(t.Add(config.StaticCacheDuration)) {
+			ctx.Response.Header.Del(ContentType)
+			ctx.Response.Header.Del(ContentLength)
+			ctx.SetStatusCode(StatusNotModified)
+			return
+		}
+
+		ctx.Response.Header.Set(ContentType, contentType)
+		ctx.Response.Header.Set(LastModified, modtimeStr)
+		ctx.SetStatusCode(StatusOK)
+		ctx.Response.SetBody(content)
+	}
+
+	p.Get(reqPath, h)
+	p.Head(reqPath, h)
 }
 
 /* */

@@ -15,30 +15,27 @@ But it's working for basics, runnable example can be found [here](https://github
 import "github.com/kataras/iris/ws"
 //...
 
-w := ws.New()
+// important staff
+
+w := ws.New(api, "/my_endpoint")
+// for default 'iris.' station use that: w := ws.New(iris.DefaultIris, "/my_endpoint")
 
 w.OnConnection(func(c ws.Connection) {
 	c.On("chat", func(message string) {
-		c.To(ws.Broadcast).Emit("chat", "Received a message from: "+c.ID()+": "+message) // to all except this connection
-		c.Emit("chat", "From myself: "+message)
+		c.To(ws.Broadcast).Emit("chat", "Message from: "+c.ID()+"-> "+message) // to all except this connection
+		// c.To("to a specific connection.ID() [rooms are coming soon]").Emit...
+		c.Emit("chat", "Message from myself: "+message)
 	})
 })
 
-
-iris.Get("/ws", func(ctx *iris.Context) {
-	if err := w.Upgrade(ctx); err != nil {
-		iris.Logger().Panic(err)
-	}
-})
+//
 
 
 // ...
 
 ```
 
-**Client-side** Currently you will need to download the [iris-ws.js](https://github.com/kataras/iris/tree/master/ws/client_side/iris-ws.js)
-
-(For the future: no need to download it, the server will serve this script automatically)
+**Client-side**
 
 ```js
 // js/chat.js
@@ -103,7 +100,8 @@ function appendMessage(messageDiv) {
 		var HOST = {{.Host}}
 	</script>
 	<script src="js/vendor/jquery-2.2.3.min.js" type="text/javascript"></script>
-	<script src="js/iris-ws.js" type="text/javascript"></script>
+	<!-- /iris-ws.js is served automatically by the server -->
+	<script src="/iris-ws.js" type="text/javascript"></script>
 	<script src="js/chat.js" type="text/javascript"></script>
 </body>
 
