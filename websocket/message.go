@@ -39,8 +39,6 @@ const (
 	boolMessageType
 	bytesMessageType
 	jsonMessageType
-	// custom events
-	///TODO: join/leave room
 )
 
 const (

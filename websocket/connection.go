@@ -4,9 +4,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/iris-contrib/websocket"
 	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/utils"
-	"github.com/iris-contrib/websocket"
 )
 
 type (
@@ -152,7 +152,9 @@ func (c *connection) messageReceived(data string) {
 		}
 
 		for i := range listeners {
-			if fnString, ok := listeners[i].(func(string)); ok {
+			if fn, ok := listeners[i].(func()); ok { // its a simple func(){} callback
+				fn()
+			} else if fnString, ok := listeners[i].(func(string)); ok {
 				fnString(customMessage.(string))
 			} else if fnInt, ok := listeners[i].(func(int)); ok {
 				fnInt(customMessage.(int))
@@ -182,7 +184,10 @@ func (c *connection) Disconnect() {
 	for i := range c.onDisconnectListeners {
 		c.onDisconnectListeners[i]()
 	}
-	close(c.send)
+	if _, ok := <-c.send; ok {
+		close(c.send)
+	}
+
 	c.underline.Close()
 	c.closed <- c
 }
