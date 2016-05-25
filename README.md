@@ -6,7 +6,7 @@
 [Travis]: http://travis-ci.org/kataras/iris
 [License Widget]: https://img.shields.io/badge/license-Apache%20License%202.0-E91E63.svg?style=flat-square
 [License]: https://github.com/kataras/iris/blob/master/LICENSE
-[Release Widget]: https://img.shields.io/badge/release-v3.0.0--alpha.7-blue.svg?style=flat-square
+[Release Widget]: https://img.shields.io/badge/release-v3.0.0--alpha.8-blue.svg?style=flat-square
 [Release]: https://github.com/kataras/iris/releases
 [Gitter Widget]: https://img.shields.io/badge/chat-on%20gitter-00BCD4.svg?style=flat-square
 [Gitter]: https://gitter.im/kataras/iris
@@ -56,7 +56,8 @@ Features
 - Focus on high performance
 - Robust routing & subdomains
 - View system supporting [5+](https://kataras.gitbooks.io/iris/content/render_templates.html) template engines
-- Highly scalable Websocket & Sessions API
+- Highly scalable Websocket API with custom events
+- Sessions support with GC, memory & redis providers
 - Middlewares & Plugins were never be easier
 - Full REST API
 - Custom HTTP Errors
@@ -112,7 +113,7 @@ Iris suggests you to use [this](https://github.com/gavv/httpexpect) new  suite t
 Versioning
 ------------
 
-Current: **v3.0.0-alpha.7**
+Current: **v3.0.0-alpha.8**
 >  Iris is an active project
 
 
@@ -127,7 +128,7 @@ Todo
 ------------
 > for the next release 'v3'
 
-- [ ] Create server & client side (js) library for .on('event', func action(...)) / .emit('event')... (like socket.io but supports only [websocket](https://github.com/kataras/iris/tree/master/websocket)).
+- [x] Create server & client side (js) library for .on('event', func action(...)) / .emit('event')... (like socket.io but supports only websocket).
 - [x] Find and provide support for the most stable template engine and be able to change it via the configuration, keep html/templates  support.
 - [ ] Extend, test and publish to the public the Iris' cmd.
 

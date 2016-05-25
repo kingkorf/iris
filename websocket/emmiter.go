@@ -1,4 +1,4 @@
-package ws
+package websocket
 
 const (
 	// All is the string which the Emmiter use to send a message to all

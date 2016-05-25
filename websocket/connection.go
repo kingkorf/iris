@@ -1,4 +1,4 @@
-package ws
+package websocket
 
 import (
 	"strings"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/utils"
-	"github.com/kataras/iris/websocket"
+	"github.com/iris-contrib/websocket"
 )
 
 type (

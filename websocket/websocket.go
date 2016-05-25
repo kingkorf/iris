@@ -1,4 +1,38 @@
-var stringMessageType = 0;
+package websocket
+
+import (
+	"github.com/kataras/iris/config"
+	"github.com/kataras/iris/context"
+	"github.com/kataras/iris/logger"
+)
+
+// to avoid the import cycle to /kataras/iris, because at the future I am thinking of bundle the ws package
+// inside Iris' configuration like kataras/iris/sessions, kataras/iris/render/rest, kataras/iris/render/template, kataras/iris/server and so on.
+type irisStation interface {
+	H_(string, string, func(context.IContext))
+	StaticContent(string, string, []byte)
+	Logger() *logger.Logger
+}
+
+//
+
+// New returns a new running websocket server
+func New(station irisStation, path string) Server {
+	server := newServer(config.DefaultAutoStart)
+
+	station.H_("GET", path, func(ctx context.IContext) {
+		if err := server.Upgrade(ctx); err != nil {
+			station.Logger().Panic(err)
+		}
+	})
+
+	// serve the client side on domain:port/iris-ws.js
+	station.StaticContent("/iris-ws.js", "application/json", clientSource)
+
+	return server
+}
+
+var clientSource = []byte(`var stringMessageType = 0;
 var intMessageType = 1;
 var boolMessageType = 2;
 // bytes is missing here for reasons I will explain somewhen
@@ -213,4 +247,4 @@ var Ws = (function () {
     };
     return Ws;
 }());
-// node-modules export {Ws}; 
+`)
