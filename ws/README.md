@@ -48,7 +48,7 @@ $(function () {
 	messages = $("#messages");
 
 
-	ws = new Ws("ws://" + HOST + "/ws");
+	ws = new Ws("ws://" + HOST + "/my_endpoint");
 	ws.OnConnect(function () {
 		console.log("Websocket connection enstablished");
 	});
@@ -102,6 +102,7 @@ function appendMessage(messageDiv) {
 	<script src="js/vendor/jquery-2.2.3.min.js" type="text/javascript"></script>
 	<!-- /iris-ws.js is served automatically by the server -->
 	<script src="/iris-ws.js" type="text/javascript"></script>
+	<!-- -->
 	<script src="js/chat.js" type="text/javascript"></script>
 </body>
 
