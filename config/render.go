@@ -90,6 +90,8 @@ type (
 	Pongo struct {
 		// Filters for pongo2, map[name of the filter] the filter function . The filters are auto register
 		Filters map[string]pongo2.FilterFunction
+		// Globals share context fields between templates. https://github.com/flosch/pongo2/issues/35
+		Globals map[string]interface{}
 	}
 
 	Markdown struct {
@@ -156,7 +158,7 @@ func DefaultTemplate() Template {
 		Charset:       "UTF-8",
 		Layout:        "", // currently this is the only config which not working for pongo2 yet but I will find a way
 		HTMLTemplate:  HTMLTemplate{Left: "{{", Right: "}}", Funcs: template.FuncMap{}},
-		Pongo:         Pongo{Filters: make(map[string]pongo2.FilterFunction, 0)},
+		Pongo:         Pongo{Filters: make(map[string]pongo2.FilterFunction, 0), Globals: make(map[string]interface{}, 0)},
 		Markdown:      Markdown{Sanitize: false},
 		Amber:         Amber{Funcs: template.FuncMap{}},
 		Jade:          Jade{},

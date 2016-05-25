@@ -56,7 +56,7 @@ func (p *Engine) buildFromDir() (templateErr error) {
 	}
 
 	set := pongo2.NewSet("", fsLoader)
-
+	set.Globals = getPongoContext(p.Config.Pongo.Globals)
 	// Walk the supplied directory and compile any files that match our extension list.
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		// Fix same-extension-dirs bug: some dir might be named to: "users.tmpl", "local.html".
@@ -111,6 +111,7 @@ func (p *Engine) buildFromAsset() error {
 		return err
 	}
 	set := pongo2.NewSet("", fsLoader)
+	set.Globals = getPongoContext(p.Config.Pongo.Globals)
 	for _, path := range p.Config.AssetNames() {
 		if !strings.HasPrefix(path, dir) {
 			continue
