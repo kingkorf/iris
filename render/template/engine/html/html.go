@@ -160,7 +160,6 @@ func (s *Engine) buildFromAsset() error {
 				if err != nil {
 					panic(err)
 				}
-
 				name := filepath.ToSlash(rel)
 				tmpl := s.Templates.New(name)
 

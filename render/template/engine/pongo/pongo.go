@@ -88,7 +88,8 @@ func (p *Engine) buildFromDir() (templateErr error) {
 					templateErr = err
 					break
 				}
-				p.templateCache[rel], templateErr = set.FromString(string(buf))
+				name := filepath.ToSlash(rel)
+				p.templateCache[name], templateErr = set.FromString(string(buf))
 
 				//_, templateErr = p.Templates.FromCache(rel) // use Relative, no from path because it calculates the basedir of the fsLoader
 				if templateErr != nil {
@@ -135,7 +136,8 @@ func (p *Engine) buildFromAsset() error {
 					templateErr = err
 					break
 				}
-				p.templateCache[rel], err = set.FromString(string(buf)) // I don't konw if that will work, yet
+				name := filepath.ToSlash(rel)
+				p.templateCache[name], err = set.FromString(string(buf)) // I don't konw if that will work, yet
 				if err != nil {
 					templateErr = err
 					break

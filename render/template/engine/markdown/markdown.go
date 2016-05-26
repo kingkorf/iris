@@ -77,7 +77,8 @@ func (e *Engine) buildFromDir() (templateErr error) {
 					templateErr = err
 					break
 				}
-				e.templateCache[rel] = buf
+				name := filepath.ToSlash(rel)
+				e.templateCache[name] = buf
 				break
 			}
 		}
@@ -117,7 +118,8 @@ func (e *Engine) buildFromAsset() error {
 				if e.Config.Markdown.Sanitize {
 					b = bluemonday.UGCPolicy().SanitizeBytes(b)
 				}
-				e.templateCache[rel] = b
+				name := filepath.ToSlash(rel)
+				e.templateCache[name] = b
 				break
 			}
 		}
