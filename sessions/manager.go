@@ -37,9 +37,7 @@ var (
 )
 
 // newManager creates & returns a new Manager
-func newManager(cfg ...config.Sessions) (*Manager, error) {
-	c := config.DefaultSessions().Merge(cfg)
-
+func newManager(c config.Sessions) (*Manager, error) {
 	provider, found := providers[c.Provider]
 	if !found {
 		return nil, ErrProviderNotFound.Format(c.Provider)
@@ -50,17 +48,6 @@ func newManager(cfg ...config.Sessions) (*Manager, error) {
 	manager.provider = provider
 
 	return manager, nil
-}
-
-// New creates & returns a new Manager and start its GC
-func New(cfg ...config.Sessions) *Manager {
-	manager, err := newManager(cfg...)
-	if err != nil {
-		panic(err.Error()) // we have to panic here because we will start GC after and if provider is nil then many panics will come
-	}
-	//run the GC here
-	go manager.GC()
-	return manager
 }
 
 // Register registers a provider

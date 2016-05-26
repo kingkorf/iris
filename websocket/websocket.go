@@ -6,7 +6,7 @@ import (
 	"github.com/kataras/iris/logger"
 )
 
-// to avoid the import cycle to /kataras/iris, because at the future I am thinking of bundle the ws package
+// to avoid the import cycle to /kataras/iris. The ws package is used inside iris' station configuration
 // inside Iris' configuration like kataras/iris/sessions, kataras/iris/render/rest, kataras/iris/render/template, kataras/iris/server and so on.
 type irisStation interface {
 	H_(string, string, func(context.IContext))
@@ -16,11 +16,20 @@ type irisStation interface {
 
 //
 
-// New returns a new running websocket server
-func New(station irisStation, path string) Server {
-	server := newServer(config.DefaultAutoStart)
+// New returns a new running websocket server, registers this to the iris station
+//
+// Note that:
+// This is not usable for you, unless you need more than one websocket server,
+// because iris' station already has one which you can configure and start
+//
+func New(station irisStation, cfg ...config.Websocket) Server {
+	c := config.DefaultWebsocket().Merge(cfg)
+	if c.Endpoint == "" {
+		station.Logger().Panicf("Websockets - config's Endpoint is empty, you have to set it in order to enable and start the websocket server!!. Refer to the docs if you can't figure out.")
+	}
+	server := newServer(c)
 
-	station.H_("GET", path, func(ctx context.IContext) {
+	station.H_("GET", c.Endpoint, func(ctx context.IContext) {
 		if err := server.Upgrade(ctx); err != nil {
 			station.Logger().Panic(err)
 		}

@@ -23,8 +23,6 @@ type (
 		Emmiter
 		// ID returns the connection's identifier
 		ID() string
-		// Disconnect unregisters the client/connection from the server
-		Disconnect()
 		// OnDisconnect registers a callback which fires when this connection is closed by an error or manual
 		OnDisconnect(DisconnectFunc)
 		// To defines where server should send a message
@@ -34,6 +32,10 @@ type (
 		OnMessage(NativeMessageFunc)
 		// On registers a callback to a particular event which fires when a message to this event received
 		On(string, MessageFunc)
+		// Join join a connection to a room, it doesn't check if connection is already there, so care
+		Join(string)
+		// Leave removes a connection from a room
+		Leave(string)
 	}
 
 	connection struct {
@@ -43,16 +45,12 @@ type (
 		onDisconnectListeners    []DisconnectFunc
 		onNativeMessageListeners []NativeMessageFunc
 		onEventListeners         map[string][]MessageFunc
-
-		// channels from server
-		messages chan messagePayload
-		closed   chan *connection
-		//
-
 		// these were  maden for performance only
 		self      Emmiter // pre-defined emmiter than sends message to its self client
 		broadcast Emmiter // pre-defined emmiter that sends message to all except this
 		all       Emmiter // pre-defined emmiter which sends message to all clients
+
+		server *server
 	}
 )
 
@@ -60,7 +58,7 @@ var _ Connection = &connection{}
 
 // connection implementation
 
-func newConnection(websocketConn *websocket.Conn, messagesChannel chan messagePayload, closeChannel chan *connection) *connection {
+func newConnection(websocketConn *websocket.Conn, s *server) *connection {
 	c := &connection{
 		id:        utils.RandomString(64),
 		underline: websocketConn,
@@ -68,8 +66,7 @@ func newConnection(websocketConn *websocket.Conn, messagesChannel chan messagePa
 		onDisconnectListeners:    make([]DisconnectFunc, 0),
 		onNativeMessageListeners: make([]NativeMessageFunc, 0),
 		onEventListeners:         make(map[string][]MessageFunc, 0),
-		messages:                 messagesChannel,
-		closed:                   closeChannel,
+		server:                   s,
 	}
 
 	c.self = newEmmiter(c, c.id)
@@ -88,7 +85,7 @@ func (c *connection) writer() {
 	ticker := time.NewTicker(config.DefaultPingPeriod)
 	defer func() {
 		ticker.Stop()
-		c.Disconnect()
+		c.underline.Close()
 	}()
 
 	for {
@@ -113,7 +110,8 @@ func (c *connection) writer() {
 
 func (c *connection) reader() {
 	defer func() {
-		c.Disconnect()
+		c.server.free <- c
+		c.underline.Close()
 	}()
 	conn := c.underline
 
@@ -146,7 +144,7 @@ func (c *connection) messageReceived(data string) {
 		if listeners == nil { // if not listeners for this event exit from here
 			return
 		}
-		customMessage, err := decodeMessage(receivedEvt, data)
+		customMessage, err := deserialize(receivedEvt, data)
 		if customMessage == nil || err != nil {
 			return
 		}
@@ -180,16 +178,10 @@ func (c *connection) ID() string {
 	return c.id
 }
 
-func (c *connection) Disconnect() {
+func (c *connection) fireDisconnect() {
 	for i := range c.onDisconnectListeners {
 		c.onDisconnectListeners[i]()
 	}
-	if _, ok := <-c.send; ok {
-		close(c.send)
-	}
-
-	c.underline.Close()
-	c.closed <- c
 }
 
 func (c *connection) OnDisconnect(cb DisconnectFunc) {
@@ -226,6 +218,16 @@ func (c *connection) On(event string, cb MessageFunc) {
 	}
 
 	c.onEventListeners[event] = append(c.onEventListeners[event], cb)
+}
+
+func (c *connection) Join(roomName string) {
+	payload := roomPayload{roomName, c.id}
+	c.server.join <- payload
+}
+
+func (c *connection) Leave(roomName string) {
+	payload := roomPayload{roomName, c.id}
+	c.server.leave <- payload
 }
 
 //

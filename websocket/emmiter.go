@@ -18,12 +18,6 @@ type (
 		Emit(string, interface{}) error
 	}
 
-	messagePayload struct {
-		from string
-		to   string
-		data []byte
-	}
-
 	emmiter struct {
 		conn *connection
 		to   string
@@ -32,14 +26,6 @@ type (
 
 var _ Emmiter = &emmiter{}
 
-// payload implementation
-
-func newMessagePayload(from string, to string, data []byte) messagePayload {
-	return messagePayload{from, to, data}
-}
-
-//
-
 // emmiter implementation
 
 func newEmmiter(c *connection, to string) *emmiter {
@@ -47,13 +33,13 @@ func newEmmiter(c *connection, to string) *emmiter {
 }
 
 func (e *emmiter) EmitMessage(nativeMessage string) error {
-	mp := newMessagePayload(e.conn.id, e.to, []byte(nativeMessage))
-	e.conn.messages <- mp
+	mp := messagePayload{e.conn.id, e.to, []byte(nativeMessage)}
+	e.conn.server.messages <- mp
 	return nil
 }
 
 func (e *emmiter) Emit(event string, data interface{}) error {
-	message, err := encodeMessage(event, data)
+	message, err := serialize(event, data)
 	if err != nil {
 		return err
 	}

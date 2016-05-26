@@ -78,6 +78,8 @@ type (
 
 		// Render contains the configs for template and rest configuration
 		Render Render
+
+		Websocket Websocket
 	}
 
 	// Render struct keeps organise all configuration about rendering, templates and rest currently.
@@ -113,6 +115,7 @@ func Default() Iris {
 		ProfilePath:        DefaultProfilePath,
 		Sessions:           DefaultSessions(),
 		Render:             DefaultRender(),
+		Websocket:          DefaultWebsocket(),
 	}
 }
 

@@ -1,4 +1,4 @@
-// Package iris v3.0.0-alpha.8
+// Package iris v3.0.0-alpha.beta
 //
 // Note: When 'Station', we mean the Iris type.
 package iris
@@ -16,11 +16,12 @@ import (
 	"github.com/kataras/iris/sessions"
 	_ "github.com/kataras/iris/sessions/providers/memory"
 	_ "github.com/kataras/iris/sessions/providers/redis"
+	"github.com/kataras/iris/websocket"
 	"github.com/klauspost/compress/gzip"
 )
 
 const (
-	Version = "v3.0.0-alpha.8"
+	Version = "v3.0.0-alpha.beta"
 )
 
 /* for conversion */
@@ -46,14 +47,15 @@ type (
 	// Iris is the container of all, server, router, cache and the sync.Pool
 	Iris struct {
 		*router
-		config         *config.Iris
-		server         *server.Server
-		plugins        *PluginContainer
-		rest           *rest.Render
-		templates      *template.Template
-		sessionManager *sessions.Manager
-		logger         *logger.Logger
-		gzipWriterPool sync.Pool // this pool is used everywhere needed in the iris for example inside party-> StaticSimple
+		config          *config.Iris
+		server          *server.Server
+		plugins         *PluginContainer
+		rest            *rest.Render
+		templates       *template.Template
+		sessionManager  *sessions.Manager
+		websocketServer websocket.Server
+		logger          *logger.Logger
+		gzipWriterPool  sync.Pool // this pool is used everywhere needed in the iris for example inside party-> StaticSimple
 	}
 )
 
@@ -90,6 +92,15 @@ func (s *Iris) initTemplates() {
 		s.templates = template.New(s.config.Render.Template)
 	}
 
+}
+
+func (s *Iris) initWebsocketServer() {
+	if s.websocketServer == nil {
+		// enable websocket if config.Websocket.Endpoint != ""
+		if s.config.Websocket.Endpoint != "" {
+			s.websocketServer = websocket.New(s, s.config.Websocket)
+		}
+	}
 }
 
 // PreListen call router's optimize, sets the server's handler and notice the plugins
@@ -131,6 +142,9 @@ func (s *Iris) PostListen() {
 	if s.config.Sessions.Provider != "" {
 		s.sessionManager = sessions.New(s.config.Sessions)
 	}
+
+	// set the websocket
+	s.initWebsocketServer()
 
 	s.plugins.DoPostListen(s)
 }
@@ -244,4 +258,10 @@ func (s *Iris) Rest() *rest.Render {
 func (s *Iris) Templates() *template.Template {
 	s.initTemplates() // for any case the user called .Templates() before server's listen
 	return s.templates
+}
+
+// Websocket returns the websocket server
+func (s *Iris) Websocket() websocket.Server {
+	s.initWebsocketServer() // for any case the user called .Websocket() before server's listen
+	return s.websocketServer
 }

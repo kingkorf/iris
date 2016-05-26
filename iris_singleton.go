@@ -6,6 +6,7 @@ import (
 	"github.com/kataras/iris/render/rest"
 	"github.com/kataras/iris/render/template"
 	"github.com/kataras/iris/server"
+	"github.com/kataras/iris/websocket"
 )
 
 // DefaultIris in order to use iris.Get(...,...) we need a default Iris on the package level
@@ -314,4 +315,9 @@ func Rest() *rest.Render {
 // Templates returns the template render
 func Templates() *template.Template {
 	return DefaultIris.Templates()
+}
+
+// Websocket returns the websocket server
+func Websocket() websocket.Server {
+	return DefaultIris.Websocket()
 }

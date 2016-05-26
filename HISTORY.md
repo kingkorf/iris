@@ -1,5 +1,64 @@
 # History
 
+## 3.0.0-alpha.6 -> 3.0.0-alpha.beta
+
+- [Implement feature request to add Globals on the pongo2](https://github.com/kataras/iris/issues/145)
+
+- [Implement feature request for static Favicon ](https://github.com/kataras/iris/issues/141)
+
+- Implement a unique easy only-websocket support:
+
+
+```go
+OnConnection(func(c websocket.Connection){})
+```
+
+```go
+
+// Receive from the client
+On("anyCustomEvent", func(message string) {})
+On("anyCustomEvent", func(message int){})
+On("anyCustomEvent", func(message bool){})
+On("anyCustomEvent", func(message anyCustomType){})
+On("anyCustomEvent", func(){})
+
+// Receive a native websocket message from the client
+// compatible without need of import the iris-ws.js to the .html
+OnMessage("anyMessage",func(message string){})
+
+// Send to the client
+Emit("anyCustomEvent", string)
+Emit("anyCustomEvent", int)
+Emit("anyCustomEvent", bool)
+Emit("anyCustomEvent", anyCustomType)
+
+// Send via native websocket way, compatible without need of import the iris-ws.js to the .html
+EmitMessage("anyMessage")
+
+// Send to specific client(s)
+To("otherConnectionId").Emit/EmitMessage...
+To("anyCustomRoom").Emit/EmitMessage...
+
+// Send to all opened connections/clients
+To(websocket.All).Emit/EmitMessage...
+
+// Send to all opened connections/clients EXCEPT this client(c)
+To(websocket.NotMe).Emit/EmitMessage...
+
+// Rooms, group of connections/clients
+Join("anyCustomRoom")
+Leave("anyCustomRoom")
+
+
+// Fired when the connection is closed
+OnDisconnect(func(){})
+
+```
+
+	- [Example](https://github.com/iris-contrib/examples/tree/master/websocket): https://github.com/iris-contrib/examples/tree/master/websocket
+	- [E-book section](https://kataras.gitbooks.io/iris/content/package-websocket.html): https://kataras.gitbooks.io/iris/content/package-websocket.html
+
+
 ## 3.0.0-alpha.5 -> 3.0.0-alpha.6
 
 Changes:

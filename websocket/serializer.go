@@ -9,28 +9,9 @@ import (
 	"github.com/kataras/iris/utils"
 )
 
-type messageType uint8
-
-func (m messageType) String() string {
-	return strconv.Itoa(int(m))
-}
-
-func (m messageType) Name() string {
-	if m == stringMessageType {
-		return "string"
-	} else if m == intMessageType {
-		return "int"
-	} else if m == boolMessageType {
-		return "bool"
-	} else if m == bytesMessageType {
-		return "[]byte"
-	} else if m == jsonMessageType {
-		return "json"
-	}
-
-	return "Invalid(" + m.String() + ")"
-
-}
+/*
+serializer, [de]serialize the messages from the client to the server and from the server to the client
+*/
 
 // The same values are exists on client side also
 const (
@@ -56,10 +37,35 @@ var (
 	buf           = utils.NewBufferPool(256)
 )
 
-// encodeMessage encodes a custom websocket message from server to be delivered to the client
+type (
+	messageType uint8
+)
+
+func (m messageType) String() string {
+	return strconv.Itoa(int(m))
+}
+
+func (m messageType) Name() string {
+	if m == stringMessageType {
+		return "string"
+	} else if m == intMessageType {
+		return "int"
+	} else if m == boolMessageType {
+		return "bool"
+	} else if m == bytesMessageType {
+		return "[]byte"
+	} else if m == jsonMessageType {
+		return "json"
+	}
+
+	return "Invalid(" + m.String() + ")"
+
+}
+
+// serialize serializes a custom websocket message from server to be delivered to the client
 // returns the  string form of the message
 // Supported data types are: string, int, bool, bytes and JSON.
-func encodeMessage(event string, data interface{}) (string, error) {
+func serialize(event string, data interface{}) (string, error) {
 	var msgType messageType
 	var dataMessage string
 
@@ -99,10 +105,10 @@ func encodeMessage(event string, data interface{}) (string, error) {
 
 }
 
-// decodeMessage decodes a custom websocket message from the client
+// deserialize deserializes a custom websocket message from the client
 // ex: iris-websocket-message;chat;4;themarshaledstringfromajsonstruct will return 'hello' as string
 // Supported data types are: string, int, bool, bytes and JSON.
-func decodeMessage(event string, websocketMessage string) (message interface{}, err error) {
+func deserialize(event string, websocketMessage string) (message interface{}, err error) {
 	t, formaterr := strconv.Atoi(websocketMessage[prefixAndSepIdx+len(event)+1 : prefixAndSepIdx+len(event)+2]) // in order to iris-websocket-message;user;-> 4
 	if formaterr != nil {
 		return nil, formaterr
@@ -127,7 +133,7 @@ func decodeMessage(event string, websocketMessage string) (message interface{}, 
 	return
 }
 
-// return empty string when the websocketMessage is native message
+// getCustomEvent return empty string when the websocketMessage is native message
 func getCustomEvent(websocketMessage string) string {
 	if len(websocketMessage) < prefixAndSepIdx {
 		return ""
