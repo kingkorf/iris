@@ -9,7 +9,7 @@ type Editor struct {
 	Port int
 	// WorkingDir if empty "./"
 	WorkingDir string
-	// Useranme if empty iris
+	// Username if empty iris
 	Username string
 	// Password if empty admin!123
 	Password string
