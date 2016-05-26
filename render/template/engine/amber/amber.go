@@ -5,6 +5,7 @@ import (
 
 	"fmt"
 	"io"
+	"path/filepath"
 	"sync"
 
 	"github.com/eknkc/amber"
@@ -46,7 +47,8 @@ func (e *Engine) BuildTemplates() error {
 	if err == nil {
 		e.templateCache = make(map[string]*template.Template)
 		for k, v := range templates {
-			e.templateCache[k+opt.Ext] = v
+			name := filepath.ToSlash(k + opt.Ext)
+			e.templateCache[name] = v
 			delete(templates, k)
 		}
 
