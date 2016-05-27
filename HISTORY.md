@@ -57,8 +57,8 @@ OnDisconnect(func(){})
 
 ```
 
-	- [Example](https://github.com/iris-contrib/examples/tree/master/websocket): https://github.com/iris-contrib/examples/tree/master/websocket
-	- [E-book section](https://kataras.gitbooks.io/iris/content/package-websocket.html): https://kataras.gitbooks.io/iris/content/package-websocket.html
+- [Example](https://github.com/iris-contrib/examples/tree/master/websocket)
+- [E-book section](https://kataras.gitbooks.io/iris/content/package-websocket.html)
 
 
 ## 3.0.0-alpha.5 -> 3.0.0-alpha.6

@@ -138,6 +138,7 @@ func (c *connection) reader() {
 
 // messageReceived checks the incoming message and fire the nativeMessage listeners or the event listeners (iris-ws custom message)
 func (c *connection) messageReceived(data []byte) {
+
 	if bytes.HasPrefix(data, prefixBytes) {
 		customData := string(data)
 		//it's a custom iris-ws message

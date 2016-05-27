@@ -29,12 +29,25 @@ func New(station irisStation, cfg ...config.Websocket) Server {
 	}
 	server := newServer(c)
 
-	station.H_("GET", c.Endpoint, func(ctx context.IContext) {
+	websocketHandler := func(ctx context.IContext) {
 		if err := server.Upgrade(ctx); err != nil {
 			station.Logger().Panic(err)
 		}
-	})
+	}
 
+	if c.Headers != nil && len(c.Headers) > 0 { // only for performance matter just re-create the websocketHandler if we have headers to set
+		websocketHandler = func(ctx context.IContext) {
+			for k, v := range c.Headers {
+				ctx.SetHeader(k, v)
+			}
+
+			if err := server.Upgrade(ctx); err != nil {
+				station.Logger().Panic(err)
+			}
+		}
+	}
+
+	station.H_("GET", c.Endpoint, websocketHandler)
 	// serve the client side on domain:port/iris-ws.js
 	station.StaticContent("/iris-ws.js", "application/json", clientSource)
 
