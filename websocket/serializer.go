@@ -35,6 +35,7 @@ const (
 var (
 	separatorByte = separator[0]
 	buf           = utils.NewBufferPool(256)
+	prefixBytes   = []byte(prefix)
 )
 
 type (

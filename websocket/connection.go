@@ -1,8 +1,9 @@
 package websocket
 
 import (
-	"strings"
 	"time"
+
+	"bytes"
 
 	"github.com/iris-contrib/websocket"
 	"github.com/kataras/iris/config"
@@ -12,8 +13,8 @@ import (
 type (
 	// DisconnectFunc is the callback which fires when a client/connection closed
 	DisconnectFunc func()
-	// NativeMessageFunc is the callback for native websocket messages, receives one string parameter which is the raw client's message
-	NativeMessageFunc func(string)
+	// NativeMessageFunc is the callback for native websocket messages, receives one []byte parameter which is the raw client's message
+	NativeMessageFunc func([]byte)
 	// MessageFunc is the second argument to the Emitter's Emit functions.
 	// A callback which should receives one parameter of type string, int, bool or any valid JSON/Go struct
 	MessageFunc interface{}
@@ -129,22 +130,23 @@ func (c *connection) reader() {
 			}
 			break
 		} else {
-			c.messageReceived(string(data))
+			c.messageReceived(data)
 		}
 
 	}
 }
 
 // messageReceived checks the incoming message and fire the nativeMessage listeners or the event listeners (iris-ws custom message)
-func (c *connection) messageReceived(data string) {
-	if strings.HasPrefix(data, prefix) {
+func (c *connection) messageReceived(data []byte) {
+	if bytes.HasPrefix(data, prefixBytes) {
+		customData := string(data)
 		//it's a custom iris-ws message
-		receivedEvt := getCustomEvent(data)
+		receivedEvt := getCustomEvent(customData)
 		listeners := c.onEventListeners[receivedEvt]
 		if listeners == nil { // if not listeners for this event exit from here
 			return
 		}
-		customMessage, err := deserialize(receivedEvt, data)
+		customMessage, err := deserialize(receivedEvt, customData)
 		if customMessage == nil || err != nil {
 			return
 		}
@@ -200,7 +202,7 @@ func (c *connection) To(to string) Emmiter {
 	return newEmmiter(c, to)
 }
 
-func (c *connection) EmitMessage(nativeMessage string) error {
+func (c *connection) EmitMessage(nativeMessage []byte) error {
 	return c.self.EmitMessage(nativeMessage)
 }
 

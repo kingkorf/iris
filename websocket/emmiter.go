@@ -13,7 +13,7 @@ type (
 	// Emmiter is the message/or/event manager
 	Emmiter interface {
 		// EmitMessage sends a native websocket message
-		EmitMessage(string) error
+		EmitMessage([]byte) error
 		// Emit sends a message on a particular event
 		Emit(string, interface{}) error
 	}
@@ -32,8 +32,8 @@ func newEmmiter(c *connection, to string) *emmiter {
 	return &emmiter{conn: c, to: to}
 }
 
-func (e *emmiter) EmitMessage(nativeMessage string) error {
-	mp := messagePayload{e.conn.id, e.to, []byte(nativeMessage)}
+func (e *emmiter) EmitMessage(nativeMessage []byte) error {
+	mp := messagePayload{e.conn.id, e.to, nativeMessage}
 	e.conn.server.messages <- mp
 	return nil
 }
@@ -43,7 +43,7 @@ func (e *emmiter) Emit(event string, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	e.EmitMessage(message)
+	e.EmitMessage([]byte(message))
 	return nil
 }
 

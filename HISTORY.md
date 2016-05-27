@@ -9,10 +9,12 @@
 - Implement a unique easy only-websocket support:
 
 
+
 ```go
 OnConnection(func(c websocket.Connection){})
 ```
 
+websocket.Connection
 ```go
 
 // Receive from the client
@@ -24,7 +26,7 @@ On("anyCustomEvent", func(){})
 
 // Receive a native websocket message from the client
 // compatible without need of import the iris-ws.js to the .html
-OnMessage("anyMessage",func(message string){})
+OnMessage(func(message []byte){})
 
 // Send to the client
 Emit("anyCustomEvent", string)
@@ -33,7 +35,7 @@ Emit("anyCustomEvent", bool)
 Emit("anyCustomEvent", anyCustomType)
 
 // Send via native websocket way, compatible without need of import the iris-ws.js to the .html
-EmitMessage("anyMessage")
+EmitMessage([]byte("anyMessage"))
 
 // Send to specific client(s)
 To("otherConnectionId").Emit/EmitMessage...
